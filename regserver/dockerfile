@@ -1,0 +1,14 @@
+FROM golang:1.9
+LABEL maintainer="sparkle_pony_2000@qri.io"
+
+ADD . /go/src/github.com/qri-io/peerns
+RUN cd /go/src/github.com/qri-io/peerns
+RUN go get -v github.com/datatogether/api/apiutil github.com/sirupsen/logrus
+RUN go install github.com/qri-io/peerns
+
+# set default port
+ENV PORT=3001
+EXPOSE 3001
+
+# Set binary as entrypoint, initalizing ipfs repo if none is mounted
+CMD ["peerns"]

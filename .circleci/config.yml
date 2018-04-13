@@ -16,11 +16,11 @@ jobs:
           name: install test deps
           command: go get github.com/jstemmer/go-junit-report github.com/golang/lint/golint
       - run: 
-          name: install deps
-          command: make install
-      - run: 
           name: Run Lint Tests
           command: golint -set_exit_status ./...
+      - run: 
+          name: install deps
+          command: make install-deps
       - run:
           name: Run Tests
           command: |
