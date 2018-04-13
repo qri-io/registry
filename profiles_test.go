@@ -56,6 +56,16 @@ func TestProfilesRegister(t *testing.T) {
 			t.Errorf("case %d error mismatch. expected: '%s', got: '%s'", i, c.err, err)
 		}
 	}
+
+	if err := ps.Deregister(&Profile{}); err == nil {
+		t.Error("invalid profile should error")
+	}
+	if err := ps.Deregister(&Profile{ProfileID: p.ProfileID, Handle: p.Handle, PublicKey: p.PublicKey, Signature: base64.StdEncoding.EncodeToString(mismatchSig)}); err == nil {
+		t.Error("unverifiable profile should error")
+	}
+	if err := ps.Deregister(p2); err != nil {
+		t.Errorf("error deregistering: %s", err.Error())
+	}
 }
 
 func TestProfilesSortedRange(t *testing.T) {

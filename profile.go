@@ -37,6 +37,37 @@ func (p *Profile) Validate() error {
 	return nil
 }
 
+// Verify checks a profile's proof of key ownership
+// Registree's must prove they have control of the private key by signing the desired handle,
+// which is validated with a provided public key. Public key, handle, and date of
+func (p *Profile) Verify() error {
+	pkbytes, err := base64.StdEncoding.DecodeString(p.PublicKey)
+	if err != nil {
+		return fmt.Errorf("publickey base64 encoding: %s", err.Error())
+	}
+
+	pubkey, err := crypto.UnmarshalPublicKey(pkbytes)
+	if err != nil {
+		return fmt.Errorf("invalid publickey: %s", err.Error())
+	}
+
+	sigbytes, err := base64.StdEncoding.DecodeString(p.Signature)
+	if err != nil {
+		return fmt.Errorf("signature base64 encoding: %s", err.Error())
+	}
+
+	valid, err := pubkey.Verify([]byte(p.Handle), sigbytes)
+	if err != nil {
+		return fmt.Errorf("invalid signature: %s", err.Error())
+	}
+
+	if !valid {
+		return fmt.Errorf("mismatched signature")
+	}
+
+	return nil
+}
+
 // ProfileFromPrivateKey generates a profile struct from a private key & desired profile handle
 // It adds all the necessary components to pass profiles.Register, creating base64-encoded
 // PublicKey & Signature, and base58-encoded ProfileID

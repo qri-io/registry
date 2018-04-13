@@ -1,13 +1,10 @@
 package registry
 
 import (
-	"encoding/base64"
 	"fmt"
 	"sort"
 	"sync"
 	"time"
-
-	"github.com/libp2p/go-libp2p-crypto"
 )
 
 var (
@@ -86,36 +83,13 @@ func (ps *Profiles) store(key string, value *Profile) {
 	ps.Unlock()
 }
 
-// Register adds a profile to the list if it's valid and the desired handle isn't taken.
-// Registree's must prove they have control of the private key by signing the desired handle,
-// which is validated with a provided public key. Public key, handle, and date of
+// Register adds a profile to the list if it's valid and the desired handle isn't taken
 func (ps *Profiles) Register(p *Profile) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}
-
-	pkbytes, err := base64.StdEncoding.DecodeString(p.PublicKey)
-	if err != nil {
-		return fmt.Errorf("publickey base64 encoding: %s", err.Error())
-	}
-
-	pubkey, err := crypto.UnmarshalPublicKey(pkbytes)
-	if err != nil {
-		return fmt.Errorf("invalid publickey: %s", err.Error())
-	}
-
-	sigbytes, err := base64.StdEncoding.DecodeString(p.Signature)
-	if err != nil {
-		return fmt.Errorf("signature base64 encoding: %s", err.Error())
-	}
-
-	valid, err := pubkey.Verify([]byte(p.Handle), sigbytes)
-	if err != nil {
-		return fmt.Errorf("invalid signature: %s", err.Error())
-	}
-
-	if !valid {
-		return fmt.Errorf("mismatched signature")
+	if err := p.Verify(); err != nil {
+		return err
 	}
 
 	if _, ok := ps.Load(p.Handle); ok {
@@ -138,5 +112,18 @@ func (ps *Profiles) Register(p *Profile) error {
 	p.Signature = ""
 	p.Created = nowFunc()
 	ps.store(p.Handle, p)
+	return nil
+}
+
+// Deregister removes a profile from the registry if it exists
+func (ps *Profiles) Deregister(p *Profile) error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	if err := p.Verify(); err != nil {
+		return err
+	}
+
+	ps.Delete(p.Handle)
 	return nil
 }
