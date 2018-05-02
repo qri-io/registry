@@ -76,8 +76,8 @@ func (ps *Profiles) Delete(key string) {
 	ps.Unlock()
 }
 
-// store adds an entry
-func (ps *Profiles) store(key string, value *Profile) {
+// Store adds an entry
+func (ps *Profiles) Store(key string, value *Profile) {
 	ps.Lock()
 	ps.internal[key] = value
 	ps.Unlock()

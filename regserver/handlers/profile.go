@@ -13,16 +13,37 @@ import (
 // on a *registry.Profiles
 func NewProfilesHandler(profiles *registry.Profiles) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ps := make([]*registry.Profile, profiles.Len())
+		switch r.Method {
+		case "POST":
+			ps := []*registry.Profile{}
+			switch r.Header.Get("Content-Type") {
+			case "application/json":
+				if err := json.NewDecoder(r.Body).Decode(&ps); err != nil {
+					apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+					return
+				}
+			default:
+				err := fmt.Errorf("Content-Type must be application/json")
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+				return
+			}
 
-		i := 0
-		profiles.SortedRange(func(key string, p *registry.Profile) bool {
-			ps[i] = p
-			i++
-			return false
-		})
+			for _, pro := range ps {
+				profiles.Store(pro.Handle, pro)
+			}
+			fallthrough
+		case "GET":
+			ps := make([]*registry.Profile, profiles.Len())
 
-		apiutil.WriteResponse(w, ps)
+			i := 0
+			profiles.SortedRange(func(key string, p *registry.Profile) bool {
+				ps[i] = p
+				i++
+				return false
+			})
+
+			apiutil.WriteResponse(w, ps)
+		}
 	}
 }
 

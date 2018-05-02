@@ -28,7 +28,7 @@ func main() {
 		Addr:    ":" + port,
 		Handler: handlers.NewRoutes(profiles),
 	}
-	log.Infof("serving on: %s\n", s.Addr)
+	log.Infof("serving on: %s", s.Addr)
 	if err := s.ListenAndServe(); err != nil {
 		log.Info(err.Error())
 	}
