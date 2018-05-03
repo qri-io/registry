@@ -113,7 +113,7 @@ func (ps *Profiles) Register(p *Profile) error {
 		ps.Delete(prev)
 	}
 
-	ps.store(p.Handle, &Profile{
+	ps.Store(p.Handle, &Profile{
 		Handle:    p.Handle,
 		Created:   nowFunc(),
 		ProfileID: p.ProfileID,

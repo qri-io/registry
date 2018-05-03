@@ -22,11 +22,13 @@ func init() {
 }
 
 // NewRoutes allocates server handlers along standard routes
-func NewRoutes(ps *registry.Profiles) http.Handler {
+func NewRoutes(ps *registry.Profiles, ds *registry.Datasets) http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("/", apiutil.HealthCheckHandler)
 	m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
 	m.HandleFunc("/profiles", protectedRoute([]string{"POST"}, logReq(NewProfilesHandler(ps))))
+	m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds)))
+	m.HandleFunc("/datasets", protectedRoute([]string{"POST"}, logReq(NewDatasetsHandler(ds))))
 
 	return m
 }

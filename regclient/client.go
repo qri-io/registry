@@ -103,3 +103,7 @@ func (r Client) doJSONProfileReq(method string, p *registry.Profile) (*registry.
 
 	return env.Data, nil
 }
+
+// func (r Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.Dataset, error) {
+
+// }

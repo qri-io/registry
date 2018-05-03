@@ -12,8 +12,10 @@ import (
 )
 
 var (
-	// profiles
+	// in-memory profiles for now
 	profiles = registry.NewProfiles()
+	// in-memory datasets for now
+	datasets = registry.NewDatasets()
 	// logger
 	log = logrus.New()
 )
@@ -26,7 +28,7 @@ func main() {
 
 	s := http.Server{
 		Addr:    ":" + port,
-		Handler: handlers.NewRoutes(profiles),
+		Handler: handlers.NewRoutes(profiles, datasets),
 	}
 	log.Infof("serving on: %s", s.Addr)
 	if err := s.ListenAndServe(); err != nil {
