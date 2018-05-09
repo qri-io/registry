@@ -92,7 +92,11 @@ func (ps *Profiles) Register(p *Profile) error {
 		return err
 	}
 
-	if _, ok := ps.Load(p.Handle); ok {
+	if pro, ok := ps.Load(p.Handle); ok {
+		// if peer is registring a name they already own, we're good
+		if pro.ProfileID == p.ProfileID {
+			return nil
+		}
 		return fmt.Errorf("handle '%s' is taken", p.Handle)
 	}
 
@@ -109,9 +113,12 @@ func (ps *Profiles) Register(p *Profile) error {
 		ps.Delete(prev)
 	}
 
-	p.Signature = ""
-	p.Created = nowFunc()
-	ps.store(p.Handle, p)
+	ps.store(p.Handle, &Profile{
+		Handle:    p.Handle,
+		Created:   nowFunc(),
+		ProfileID: p.ProfileID,
+		PublicKey: p.PublicKey,
+	})
 	return nil
 }
 
