@@ -52,7 +52,7 @@ func init() {
 }
 
 func TestProfile(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -169,7 +169,7 @@ func TestProfile(t *testing.T) {
 }
 
 func TestProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -262,7 +262,9 @@ func TestProfiles(t *testing.T) {
 }
 
 func TestPostProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
+	un := "username"
+	pw := "password"
+	s := httptest.NewServer(NewRoutes(NewBAProtector(un, pw), registry.NewMemProfiles(), registry.NewMemDatasets()))
 	const profiles = `[
 	{
     "ProfileID": "QmamJUR83rGtDMEvugcC2gtLDx2nhZUTzpzhH6MA2Pb3Md",
@@ -285,7 +287,7 @@ func TestPostProfiles(t *testing.T) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBasicAuth("admin", adminKey)
+	req.SetBasicAuth(un, pw)
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
