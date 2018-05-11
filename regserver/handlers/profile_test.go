@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-crypto"
@@ -51,7 +52,7 @@ func init() {
 }
 
 func TestProfile(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewProfiles()))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -168,7 +169,7 @@ func TestProfile(t *testing.T) {
 }
 
 func TestProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewProfiles()))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -258,4 +259,43 @@ func TestProfiles(t *testing.T) {
 			// TODO - check each response for profile matches
 		}
 	}
+}
+
+func TestPostProfiles(t *testing.T) {
+	un := "username"
+	pw := "password"
+	s := httptest.NewServer(NewRoutes(NewBAProtector(un, pw), registry.NewMemProfiles(), registry.NewMemDatasets()))
+	const profiles = `[
+	{
+    "ProfileID": "QmamJUR83rGtDMEvugcC2gtLDx2nhZUTzpzhH6MA2Pb3Md",
+    "Handle": "EDGI",
+    "PublicKey": "CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCmTFRx/6dKmoxje8AG+jFv94IcGUGnjrupa7XEr12J/c4ZLn3aPrD8F0tjRbstt1y/J+bO7Qb69DGiu2iSIqyE21nl2oex5+14jtxbupRq9jRTbpUHRj+y9I7uUDwl0E2FS1IQpBBfEGzDPIBVavxbhguC3O3XA7Aq7vea2lpJ1tWpr0GDRYSNmJAybkHS6k7dz1eVXFK+JE8FGFJi/AThQZKWRijvWFdlZvb8RyNFRHzpbr9fh38bRMTqhZpw/YGO5Ly8PNSiOOE4Y5cNUHLEYwG2/lpT4l53iKScsaOazlRkJ6NmkM1il7riCa55fcIAQZDtaAx+CT5ZKfmek4P5AgMBAAE=",
+    "Created": "2018-05-01T22:31:18.288004308Z"
+  },
+  {
+    "ProfileID": "QmSyDX5LYTiwQi861F5NAwdHrrnd1iRGsoEvCyzQMUyZ4W",
+    "Handle": "b5",
+    "PublicKey": "CAASpgIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC/W17VPFX+pjyM1MHI1CsvIe+JYQX45MJNITTd7hZZDX2rRWVavGXhsccmVDGU6ubeN3t6ewcBlgCxvyewwKhmZKCAs3/0xNGKXK/YMyZpRVjTWw9yPU9gOzjd9GuNJtL7d1Hl7dPt9oECa7WBCh0W9u2IoHTda4g8B2mK92awLOZTjXeA7vbhKKX+QVHKDxEI0U2/ooLYJUVxEoHRc+DUYNPahX5qRgJ1ZDP4ep1RRRoZR+HjGhwgJP+IwnAnO5cRCWUbZvE1UBJUZDvYMqW3QvDp+TtXwqUWVvt69tp8EnlBgfyXU91A58IEQtLgZ7klOzdSEJDP+S8HIwhG/vbTAgMBAAE=",
+    "Created": "2018-04-19T22:10:49.909268968Z"
+  }
+]`
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/profiles", s.URL), strings.NewReader(profiles))
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.SetBasicAuth(un, pw)
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if res.StatusCode != 200 {
+		t.Errorf("response status mismatch. expected 200, got: %d", res.StatusCode)
+	}
+
 }

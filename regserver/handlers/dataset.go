@@ -9,13 +9,13 @@ import (
 	"github.com/qri-io/registry"
 )
 
-// NewProfilesHandler creates a profiles handler function that operates
-// on a *registry.Profiles
-func NewProfilesHandler(profiles registry.Profiles) http.HandlerFunc {
+// NewDatasetsHandler creates a datasets handler function that operates
+// on a *registry.Datasets
+func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
-			ps := []*registry.Profile{}
+			ps := []*registry.Dataset{}
 			switch r.Header.Get("Content-Type") {
 			case "application/json":
 				if err := json.NewDecoder(r.Body).Decode(&ps); err != nil {
@@ -29,14 +29,14 @@ func NewProfilesHandler(profiles registry.Profiles) http.HandlerFunc {
 			}
 
 			for _, pro := range ps {
-				profiles.Store(pro.Handle, pro)
+				datasets.Store(pro.Handle, pro)
 			}
 			fallthrough
 		case "GET":
-			ps := make([]*registry.Profile, profiles.Len())
+			ps := make([]*registry.Dataset, datasets.Len())
 
 			i := 0
-			profiles.SortedRange(func(key string, p *registry.Profile) bool {
+			datasets.SortedRange(func(key string, p *registry.Dataset) bool {
 				ps[i] = p
 				i++
 				return false
@@ -47,11 +47,11 @@ func NewProfilesHandler(profiles registry.Profiles) http.HandlerFunc {
 	}
 }
 
-// NewProfileHandler creates a profile handler func that operats on
-// a *registry.Profiles
-func NewProfileHandler(profiles registry.Profiles) http.HandlerFunc {
+// NewDatasetHandler creates a dataset handler func that operats on
+// a *registry.Datasets
+func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		p := &registry.Profile{}
+		p := &registry.Dataset{}
 		switch r.Header.Get("Content-Type") {
 		case "application/json":
 			if err := json.NewDecoder(r.Body).Decode(p); err != nil {
@@ -68,11 +68,11 @@ func NewProfileHandler(profiles registry.Profiles) http.HandlerFunc {
 		case "GET":
 			var ok bool
 			if p.Handle != "" {
-				p, ok = profiles.Load(p.Handle)
+				p, ok = datasets.Load(p.Handle)
 			} else {
-				profiles.Range(func(handle string, profile *registry.Profile) bool {
-					if profile.ProfileID == p.ProfileID || profile.PublicKey == p.PublicKey {
-						p = profile
+				datasets.Range(func(key string, dataset *registry.Dataset) bool {
+					if dataset.Key() == key {
+						p = dataset
 						ok = true
 						return true
 					}
@@ -84,12 +84,12 @@ func NewProfileHandler(profiles registry.Profiles) http.HandlerFunc {
 				return
 			}
 		case "PUT", "POST":
-			if err := profiles.Register(p); err != nil {
+			if err := datasets.Register(p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
 		case "DELETE":
-			if err := profiles.Deregister(p); err != nil {
+			if err := datasets.Deregister(p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}

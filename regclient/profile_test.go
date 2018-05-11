@@ -3,12 +3,11 @@ package regclient
 import (
 	"encoding/base64"
 	"fmt"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/registry"
-	"github.com/qri-io/registry/regserver/handlers"
+	regmock "github.com/qri-io/registry/regserver/mock"
 )
 
 // base64-encoded Test Private Key, decoded in init
@@ -34,7 +33,7 @@ func init() {
 
 func TestProfileRequests(t *testing.T) {
 	handle := "b5"
-	ts := httptest.NewServer(handlers.NewRoutes(registry.NewProfiles()))
+	ts := regmock.NewMockServer()
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

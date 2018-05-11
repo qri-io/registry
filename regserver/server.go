@@ -12,11 +12,20 @@ import (
 )
 
 var (
-	// profiles
-	profiles = registry.NewProfiles()
+	// in-memory profiles for now
+	profiles = registry.NewMemProfiles()
+	// in-memory datasets for now
+	datasets = registry.NewMemDatasets()
 	// logger
 	log = logrus.New()
+
+	adminKey string
 )
+
+func init() {
+	adminKey = handlers.NewAdminKey()
+	log.Infof("admin key: %s", adminKey)
+}
 
 func main() {
 	port := os.Getenv("PORT")
@@ -24,11 +33,13 @@ func main() {
 		port = "3000"
 	}
 
+	pro := handlers.NewBAProtector("username", adminKey)
+
 	s := http.Server{
 		Addr:    ":" + port,
-		Handler: handlers.NewRoutes(profiles),
+		Handler: handlers.NewRoutes(pro, profiles, datasets),
 	}
-	log.Infof("serving on: %s\n", s.Addr)
+	log.Infof("serving on: %s", s.Addr)
 	if err := s.ListenAndServe(); err != nil {
 		log.Info(err.Error())
 	}
