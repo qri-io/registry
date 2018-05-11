@@ -49,7 +49,7 @@ func TestDatasetsRegister(t *testing.T) {
 	// 	return
 	// }
 
-	ds1, err := NewDataset(&dataset.DatasetPod{
+	ds1, err := NewDataset("foo", "bar", &dataset.DatasetPod{
 		Path: "foo",
 		Commit: &dataset.CommitPod{
 			Timestamp: ts,
@@ -58,7 +58,7 @@ func TestDatasetsRegister(t *testing.T) {
 		Structure: &dataset.StructurePod{
 			Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 		},
-	}, pk.GetPublic(), "foo", "bar")
+	}, pk.GetPublic())
 	if err != nil {
 		t.Error(err.Error())
 		return
@@ -110,7 +110,7 @@ func TestDatasetsRegister(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		ds, err := NewDataset(&c.ds, pk.GetPublic(), c.name, c.handle)
+		ds, err := NewDataset(c.name, c.handle, &c.ds, pk.GetPublic())
 		if err != nil {
 			t.Error(err.Error())
 			return
@@ -152,7 +152,7 @@ func TestDatasetsSortedRange(t *testing.T) {
 
 	handles := map[string]string{"a": "foo", "b": "bar"}
 	for handle, name := range handles {
-		p, err := NewDataset(&dataset.DatasetPod{
+		p, err := NewDataset(handle, name, &dataset.DatasetPod{
 			Path: "foo",
 			Commit: &dataset.CommitPod{
 				Timestamp: ts,
@@ -161,7 +161,7 @@ func TestDatasetsSortedRange(t *testing.T) {
 			Structure: &dataset.StructurePod{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
-		}, pk.GetPublic(), handle, name)
+		}, pk.GetPublic())
 		if err != nil {
 			t.Error(err.Error())
 			return

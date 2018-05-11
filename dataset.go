@@ -18,7 +18,7 @@ type Dataset struct {
 }
 
 // NewDataset creates a new dataset instance
-func NewDataset(cds *dataset.DatasetPod, pubkey crypto.PubKey, name, handle string) (*Dataset, error) {
+func NewDataset(name, handle string, cds *dataset.DatasetPod, pubkey crypto.PubKey) (*Dataset, error) {
 	pubb, err := pubkey.Bytes()
 	if err != nil {
 		return nil, err

@@ -46,7 +46,7 @@ func TestNewDataset(t *testing.T) {
 		return
 	}
 
-	ds, err := NewDataset(&dataset.DatasetPod{}, pub, "foo", "bar")
+	ds, err := NewDataset("foo", "bar", &dataset.DatasetPod{}, pub)
 	if err != nil {
 		t.Errorf(err.Error())
 		return
