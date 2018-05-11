@@ -11,21 +11,21 @@ import (
 
 // Dataset is a registry's version of a dataset
 type Dataset struct {
-	dataset.CodingDataset
+	dataset.DatasetPod
 	Handle    string `json:",omitempty"`
 	Name      string `json:",omitempty"`
 	PublicKey string `json:",omitempty"`
 }
 
 // NewDataset creates a new dataset instance
-func NewDataset(cds *dataset.CodingDataset, pubkey crypto.PubKey, name, handle string) (*Dataset, error) {
+func NewDataset(cds *dataset.DatasetPod, pubkey crypto.PubKey, name, handle string) (*Dataset, error) {
 	pubb, err := pubkey.Bytes()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Dataset{
-		CodingDataset: *cds,
+		DatasetPod: *cds,
 		PublicKey:     base64.StdEncoding.EncodeToString(pubb),
 		Name:          name,
 		Handle:        handle,

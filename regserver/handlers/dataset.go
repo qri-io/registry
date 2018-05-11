@@ -11,7 +11,7 @@ import (
 
 // NewDatasetsHandler creates a datasets handler function that operates
 // on a *registry.Datasets
-func NewDatasetsHandler(datasets *registry.Datasets) http.HandlerFunc {
+func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
@@ -49,7 +49,7 @@ func NewDatasetsHandler(datasets *registry.Datasets) http.HandlerFunc {
 
 // NewDatasetHandler creates a dataset handler func that operats on
 // a *registry.Datasets
-func NewDatasetHandler(datasets *registry.Datasets) http.HandlerFunc {
+func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &registry.Dataset{}
 		switch r.Header.Get("Content-Type") {

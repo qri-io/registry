@@ -22,7 +22,7 @@ func init() {
 }
 
 func TestDatasetsRegister(t *testing.T) {
-	dss := NewDatasets()
+	dss := NewMemDatasets()
 
 	pk, err := crypto.UnmarshalPrivateKey(testPk)
 	if err != nil {
@@ -49,13 +49,13 @@ func TestDatasetsRegister(t *testing.T) {
 	// 	return
 	// }
 
-	ds1, err := NewDataset(&dataset.CodingDataset{
+	ds1, err := NewDataset(&dataset.DatasetPod{
 		Path: "foo",
-		Commit: &dataset.CodingCommit{
+		Commit: &dataset.CommitPod{
 			Timestamp: ts,
 			Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 		},
-		Structure: &dataset.CodingStructure{
+		Structure: &dataset.StructurePod{
 			Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 		},
 	}, pk.GetPublic(), "foo", "bar")
@@ -65,37 +65,37 @@ func TestDatasetsRegister(t *testing.T) {
 	}
 
 	cases := []struct {
-		ds                dataset.CodingDataset
+		ds                dataset.DatasetPod
 		name, handle, err string
 	}{
-		{dataset.CodingDataset{}, "foo", "bar", "path is required"},
-		{dataset.CodingDataset{
+		{dataset.DatasetPod{}, "foo", "bar", "path is required"},
+		{dataset.DatasetPod{
 			Path: "QmFooPath",
-			Commit: &dataset.CodingCommit{
+			Commit: &dataset.CommitPod{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.CodingStructure{
+			Structure: &dataset.StructurePod{
 				Checksum: "bad",
 			},
 		}, "foo", "bar", "invalid signature: crypto/rsa: verification error"},
-		{dataset.CodingDataset{
+		{dataset.DatasetPod{
 			Path: "QmFooPath",
-			Commit: &dataset.CodingCommit{
+			Commit: &dataset.CommitPod{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.CodingStructure{
+			Structure: &dataset.StructurePod{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, "foo", "bar", ""},
-		{dataset.CodingDataset{
+		{dataset.DatasetPod{
 			Path: "QmFooPath2",
-			Commit: &dataset.CodingCommit{
+			Commit: &dataset.CommitPod{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.CodingStructure{
+			Structure: &dataset.StructurePod{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, "foo", "bar", ""},
@@ -136,7 +136,7 @@ func TestDatasetsRegister(t *testing.T) {
 }
 
 func TestDatasetsSortedRange(t *testing.T) {
-	dss := NewDatasets()
+	dss := NewMemDatasets()
 
 	pk, err := crypto.UnmarshalPrivateKey(testPk)
 	if err != nil {
@@ -152,13 +152,13 @@ func TestDatasetsSortedRange(t *testing.T) {
 
 	handles := map[string]string{"a": "foo", "b": "bar"}
 	for handle, name := range handles {
-		p, err := NewDataset(&dataset.CodingDataset{
+		p, err := NewDataset(&dataset.DatasetPod{
 			Path: "foo",
-			Commit: &dataset.CodingCommit{
+			Commit: &dataset.CommitPod{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.CodingStructure{
+			Structure: &dataset.StructurePod{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, pk.GetPublic(), handle, name)

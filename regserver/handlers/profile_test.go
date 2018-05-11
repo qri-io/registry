@@ -52,7 +52,7 @@ func init() {
 }
 
 func TestProfile(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewProfiles(), registry.NewDatasets()))
+	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -169,7 +169,7 @@ func TestProfile(t *testing.T) {
 }
 
 func TestProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewProfiles(), registry.NewDatasets()))
+	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -262,7 +262,7 @@ func TestProfiles(t *testing.T) {
 }
 
 func TestPostProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(registry.NewProfiles(), registry.NewDatasets()))
+	s := httptest.NewServer(NewRoutes(registry.NewMemProfiles(), registry.NewMemDatasets()))
 	const profiles = `[
 	{
     "ProfileID": "QmamJUR83rGtDMEvugcC2gtLDx2nhZUTzpzhH6MA2Pb3Md",

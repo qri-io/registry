@@ -11,7 +11,7 @@ import (
 
 // NewProfilesHandler creates a profiles handler function that operates
 // on a *registry.Profiles
-func NewProfilesHandler(profiles *registry.Profiles) http.HandlerFunc {
+func NewProfilesHandler(profiles registry.Profiles) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
@@ -49,7 +49,7 @@ func NewProfilesHandler(profiles *registry.Profiles) http.HandlerFunc {
 
 // NewProfileHandler creates a profile handler func that operats on
 // a *registry.Profiles
-func NewProfileHandler(profiles *registry.Profiles) http.HandlerFunc {
+func NewProfileHandler(profiles registry.Profiles) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &registry.Profile{}
 		switch r.Header.Get("Content-Type") {

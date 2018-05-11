@@ -10,7 +10,7 @@ import (
 )
 
 func TestProfilesRegister(t *testing.T) {
-	ps := NewProfiles()
+	ps := NewMemProfiles()
 
 	src := rand.New(rand.NewSource(0))
 	key0, _, err := crypto.GenerateSecp256k1Key(src)
@@ -84,7 +84,7 @@ func TestProfilesRegister(t *testing.T) {
 }
 
 func TestProfilesSortedRange(t *testing.T) {
-	ps := NewProfiles()
+	ps := NewMemProfiles()
 
 	src := rand.New(rand.NewSource(0))
 	handles := []string{"a", "b", "c"}

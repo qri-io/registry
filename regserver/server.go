@@ -13,9 +13,9 @@ import (
 
 var (
 	// in-memory profiles for now
-	profiles = registry.NewProfiles()
+	profiles = registry.NewMemProfiles()
 	// in-memory datasets for now
-	datasets = registry.NewDatasets()
+	datasets = registry.NewMemDatasets()
 	// logger
 	log = logrus.New()
 )
