@@ -85,12 +85,12 @@ func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 				return
 			}
 		case "PUT", "POST":
-			if err := datasets.Register(p); err != nil {
+			if err := registry.RegisterDataset(datasets, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
 		case "DELETE":
-			if err := datasets.Deregister(p); err != nil {
+			if err := registry.DeregisterDataset(datasets, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}

@@ -50,29 +50,28 @@ func TestDataset(t *testing.T) {
 
 	cases := []struct {
 		method      string
-		endpoint    string
 		contentType string
 		dataset     *registry.Dataset
 		resStatus   int
 		res         *env
 	}{
-		{"OPTIONS", "/dataset", "", nil, http.StatusBadRequest, nil},
-		{"OPTIONS", "/dataset", "application/json", nil, http.StatusBadRequest, nil},
-		{"OPTIONS", "/dataset", "application/json", &registry.Dataset{Handle: "foo"}, http.StatusNotFound, nil},
-		{"POST", "/dataset", "", nil, http.StatusBadRequest, nil},
-		{"POST", "/dataset", "application/json", nil, http.StatusBadRequest, nil},
-		{"POST", "/dataset", "application/json", &registry.Dataset{Handle: b5.Handle}, http.StatusBadRequest, nil},
-		{"POST", "/dataset", "application/json", ds, http.StatusOK, nil},
-		{"GET", "/dataset", "application/json", &registry.Dataset{Name: name, Handle: b5.Handle}, http.StatusOK, &env{Data: ds}},
-		{"GET", "/dataset", "application/json", registry.NewDatasetRef("", "", "", ds.Path), http.StatusOK, &env{Data: ds}},
-		{"GET", "/dataset", "application/json", registry.NewDatasetRef("", "", "", "foo"), http.StatusNotFound, nil},
-		{"DELETE", "/dataset", "application/json", nil, http.StatusBadRequest, nil},
-		{"DELETE", "/dataset", "application/json", &registry.Dataset{Handle: b5.Handle, Name: name}, http.StatusBadRequest, nil},
-		{"DELETE", "/dataset", "application/json", ds, http.StatusOK, nil},
+		{"OPTIONS", "", nil, http.StatusBadRequest, nil},
+		{"OPTIONS", "application/json", nil, http.StatusBadRequest, nil},
+		{"OPTIONS", "application/json", &registry.Dataset{Handle: "foo"}, http.StatusNotFound, nil},
+		{"POST", "", nil, http.StatusBadRequest, nil},
+		{"POST", "application/json", nil, http.StatusBadRequest, nil},
+		{"POST", "application/json", &registry.Dataset{Handle: b5.Handle}, http.StatusBadRequest, nil},
+		{"POST", "application/json", ds, http.StatusOK, nil},
+		{"GET", "application/json", &registry.Dataset{Name: name, Handle: b5.Handle}, http.StatusOK, &env{Data: ds}},
+		{"GET", "application/json", registry.NewDatasetRef("", "", "", ds.Path), http.StatusOK, &env{Data: ds}},
+		{"GET", "application/json", registry.NewDatasetRef("", "", "", "foo"), http.StatusNotFound, nil},
+		{"DELETE", "application/json", nil, http.StatusBadRequest, nil},
+		{"DELETE", "application/json", &registry.Dataset{Handle: b5.Handle, Name: name}, http.StatusBadRequest, nil},
+		{"DELETE", "application/json", ds, http.StatusOK, nil},
 	}
 
 	for i, c := range cases {
-		req, err := http.NewRequest(c.method, fmt.Sprintf("%s%s", s.URL, c.endpoint), nil)
+		req, err := http.NewRequest(c.method, fmt.Sprintf("%s/dataset", s.URL), nil)
 		if err != nil {
 			t.Errorf("case %d error creating request: %s", i, err.Error())
 			continue

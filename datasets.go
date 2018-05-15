@@ -8,13 +8,10 @@ import (
 // Datasets is the interface for working with a set of *Dataset's
 // Register, Deregister, Load, Len, Range, and SortedRange should be
 // considered safe to hook up to public http endpoints, whereas
-// Delete & Store should only be exposed in administrative contexts
+// Delete & Store should only be exposed in administrative contexts,
+// users should prefer using RegisterDataset & DegristerDataset for
+// dataset manipulation operations
 type Datasets interface {
-	// Register adds a dataset to the set if it's valid
-	Register(d *Dataset) error
-	// Deregister removes a dataset from the registry if it exists
-	Deregister(d *Dataset) error
-
 	// Len returns the number of records in the set
 	Len() int
 	// Load fetches a dataset from the list by key
@@ -33,6 +30,46 @@ type Datasets interface {
 	// Delete is only exported for administrative use cases.
 	// most of the time callers should use Deregister instead
 	Delete(key string)
+}
+
+// RegisterDataset adds a dataset to the store if it's valid
+func RegisterDataset(store Datasets, d *Dataset) error {
+	if err := d.Validate(); err != nil {
+		return err
+	}
+	if err := d.Verify(); err != nil {
+		return err
+	}
+
+	prev := ""
+	dkey := d.Key()
+	store.Range(func(key string, d *Dataset) bool {
+		if key == dkey {
+			prev = key
+			return true
+		}
+		return false
+	})
+
+	if prev != "" {
+		store.Delete(prev)
+	}
+
+	store.Store(dkey, d)
+	return nil
+}
+
+// DeregisterDataset removes a dataset from a given store if it exists & is valid
+func DeregisterDataset(store Datasets, d *Dataset) error {
+	if err := d.Validate(); err != nil {
+		return err
+	}
+	if err := d.Verify(); err != nil {
+		return err
+	}
+
+	store.Delete(d.Key())
+	return nil
 }
 
 // MemDatasets is a map of datasets data safe for concurrent use
@@ -106,44 +143,4 @@ func (ds *MemDatasets) Store(key string, value *Dataset) {
 	ds.Lock()
 	ds.internal[key] = value
 	ds.Unlock()
-}
-
-// Register adds a dataset to the set if it's valid
-func (ds *MemDatasets) Register(d *Dataset) error {
-	if err := d.Validate(); err != nil {
-		return err
-	}
-	if err := d.Verify(); err != nil {
-		return err
-	}
-
-	prev := ""
-	dkey := d.Key()
-	ds.Range(func(key string, d *Dataset) bool {
-		if key == dkey {
-			prev = key
-			return true
-		}
-		return false
-	})
-
-	if prev != "" {
-		ds.Delete(prev)
-	}
-
-	ds.Store(dkey, d)
-	return nil
-}
-
-// Deregister removes a datasets from the registry if it exists
-func (ds *MemDatasets) Deregister(d *Dataset) error {
-	if err := d.Validate(); err != nil {
-		return err
-	}
-	if err := d.Verify(); err != nil {
-		return err
-	}
-
-	ds.Delete(d.Key())
-	return nil
 }
