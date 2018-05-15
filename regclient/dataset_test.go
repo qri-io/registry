@@ -1,17 +1,19 @@
 package regclient
 
 import (
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/qri-io/dataset"
-	regmock "github.com/qri-io/registry/regserver/mock"
+	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/regserver/handlers"
 )
 
 func TestDatasetRequests(t *testing.T) {
 	handle := "b5"
 	name := "dataset"
-	srv := regmock.NewMockServer()
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})

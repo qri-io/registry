@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	// "strings"
 	"testing"
 
 	"github.com/qri-io/dataset"
