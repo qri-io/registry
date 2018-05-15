@@ -10,17 +10,18 @@ import (
 
 func TestDatasetRequests(t *testing.T) {
 	handle := "b5"
+	name := "dataset"
 	srv := regmock.NewMockServer()
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})
 
-	// err = c.GetDataset()
-	// if err == nil {
-	// 	t.Errorf("expected empty get to error")
-	// } else if err.Error() != "error 404: " {
-	// 	t.Errorf("error mistmatch. expected: %s, got: %s", "error 404: ", err.Error())
-	// }
+	_, err := c.GetDataset(handle, name, "", "")
+	if err == nil {
+		t.Errorf("expected empty get to error")
+	} else if err.Error() != "error 404: " {
+		t.Errorf("error mistmatch. expected: %s, got: %s", "error 404: ", err.Error())
+	}
 
 	ts, err := time.Parse(time.RFC3339Nano, "2001-01-01T01:01:01.000000001Z")
 	if err != nil {
@@ -39,17 +40,17 @@ func TestDatasetRequests(t *testing.T) {
 		},
 	}
 
-	err = c.PutDataset(handle, "b", ds, pk1.GetPublic())
+	err = c.PutDataset(handle, name, ds, pk1.GetPublic())
 	if err != nil {
 		t.Error(err.Error())
 	}
 
-	// err = c.GetDataset()
-	// if err != nil {
-	// 	t.Error(err)
-	// }
+	_, err = c.GetDataset(handle, name, "", "")
+	if err != nil {
+		t.Error(err)
+	}
 
-	err = c.DeleteDataset(handle, "b", ds, pk1.GetPublic())
+	err = c.DeleteDataset(handle, name, ds, pk1.GetPublic())
 	if err != nil {
 		t.Error(err.Error())
 	}

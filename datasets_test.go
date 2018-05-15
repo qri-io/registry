@@ -178,8 +178,8 @@ func TestDatasetsSortedRange(t *testing.T) {
 		return
 	}
 
-	if _, ok := dss.Load("foo/a"); !ok {
-		t.Errorf("expected foo/a to load")
+	if _, ok := dss.Load("a/foo"); !ok {
+		t.Errorf("expected a/foo to load")
 		return
 	}
 

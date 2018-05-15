@@ -2,7 +2,6 @@ package registry
 
 import (
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"testing"
 
@@ -65,7 +64,6 @@ func TestProfilesRegister(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		fmt.Printf("%d: %v\n", i, c.p.ProfileID)
 		err := ps.Register(c.p)
 		if !(err == nil && c.err == "" || err != nil && err.Error() == c.err) {
 			t.Errorf("case %d error mismatch. expected: '%s', got: '%s'", i, c.err, err)

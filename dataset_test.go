@@ -57,6 +57,19 @@ func TestNewDataset(t *testing.T) {
 	}
 }
 
+func TestNewDatasetRef(t *testing.T) {
+	ref := NewDatasetRef("peername", "name", "profileID", "path")
+	if ref.Handle != "peername" {
+		t.Errorf("expected handle to equal peername. got: %s", ref.Handle)
+	}
+	if ref.Name != "name" {
+		t.Errorf("expected name to equal name, got: %s", ref.Name)
+	}
+	if ref.Path != "path" {
+		t.Errorf("expected path to equal path, got: %s", ref.Path)
+	}
+}
+
 func TestDatasetVerify(t *testing.T) {
 	ts, err := time.Parse(time.RFC3339Nano, "2001-01-01T01:01:01.000000001Z")
 	if err != nil {

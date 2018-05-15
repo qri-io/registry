@@ -12,9 +12,14 @@ import (
 )
 
 // GetDataset fetches a dataset from a registry
-// func (c Client) GetDataset(peername, dsname, profileID, hash string) (*dataset.Dataset, error) {
-
-// }
+func (c Client) GetDataset(peername, dsname, profileID, hash string) (*dataset.DatasetPod, error) {
+	d := registry.NewDatasetRef(peername, dsname, profileID, hash)
+	ds, err := c.doJSONDatasetReq("GET", d)
+	if err != nil {
+		return nil, err
+	}
+	return &ds.DatasetPod, nil
+}
 
 // PutDataset adds a dataset to a registry
 func (c Client) PutDataset(peername, dsname string, ds *dataset.DatasetPod, pubKey crypto.PubKey) error {

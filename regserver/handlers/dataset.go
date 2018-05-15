@@ -67,18 +67,19 @@ func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 		switch r.Method {
 		case "GET":
 			var ok bool
-			if p.Handle != "" {
-				p, ok = datasets.Load(p.Handle)
-			} else {
+			if p.Path != "" {
 				datasets.Range(func(key string, dataset *registry.Dataset) bool {
-					if dataset.Key() == key {
-						p = dataset
+					if dataset.Path == p.Path {
+						*p = *dataset
 						ok = true
 						return true
 					}
 					return false
 				})
+			} else if p.Key() != "" {
+				p, ok = datasets.Load(p.Key())
 			}
+
 			if !ok {
 				apiutil.NotFoundHandler(w, r)
 				return

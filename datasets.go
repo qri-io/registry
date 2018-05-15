@@ -59,9 +59,9 @@ func (ds *MemDatasets) Len() int {
 // Load fetches a dataset from the list by key
 func (ds *MemDatasets) Load(key string) (value *Dataset, ok bool) {
 	ds.RLock()
-	result, ok := ds.internal[key]
-	ds.RUnlock()
-	return result, ok
+	defer ds.RUnlock()
+	value, ok = ds.internal[key]
+	return
 }
 
 // Range calls an iteration fuction on each element in the map until
