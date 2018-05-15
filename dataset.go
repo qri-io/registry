@@ -18,7 +18,7 @@ type Dataset struct {
 }
 
 // NewDataset creates a new dataset instance
-func NewDataset(name, handle string, cds *dataset.DatasetPod, pubkey crypto.PubKey) (*Dataset, error) {
+func NewDataset(handle, name string, cds *dataset.DatasetPod, pubkey crypto.PubKey) (*Dataset, error) {
 	pubb, err := pubkey.Bytes()
 	if err != nil {
 		return nil, err
@@ -26,10 +26,21 @@ func NewDataset(name, handle string, cds *dataset.DatasetPod, pubkey crypto.PubK
 
 	return &Dataset{
 		DatasetPod: *cds,
-		PublicKey:     base64.StdEncoding.EncodeToString(pubb),
-		Name:          name,
-		Handle:        handle,
+		PublicKey:  base64.StdEncoding.EncodeToString(pubb),
+		Name:       name,
+		Handle:     handle,
 	}, nil
+}
+
+// NewDatasetRef creates a dataset with any known reference detail strings
+func NewDatasetRef(peername, name, profileID, path string) *Dataset {
+	return &Dataset{
+		DatasetPod: dataset.DatasetPod{
+			Path: path,
+		},
+		Handle: peername,
+		Name:   name,
+	}
 }
 
 // Validate is a sanity check that all required values are present

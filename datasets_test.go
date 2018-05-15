@@ -21,7 +21,7 @@ func init() {
 	testPk = data
 }
 
-func TestDatasetsRegister(t *testing.T) {
+func TestRegisterDataset(t *testing.T) {
 	dss := NewMemDatasets()
 
 	pk, err := crypto.UnmarshalPrivateKey(testPk)
@@ -116,21 +116,21 @@ func TestDatasetsRegister(t *testing.T) {
 			return
 		}
 
-		err = dss.Register(ds)
+		err = RegisterDataset(dss, ds)
 		if !(err == nil && c.err == "" || err != nil && err.Error() == c.err) {
 			t.Errorf("case %d error mismatch. expected: '%s', got: '%s'", i, c.err, err)
 		}
 	}
 
-	if err := dss.Deregister(&Dataset{}); err == nil {
+	if err := DeregisterDataset(dss, &Dataset{}); err == nil {
 		t.Error("invalid dataset should error")
 	}
-	if err := dss.Deregister(ds1); err != nil {
+	if err := DeregisterDataset(dss, ds1); err != nil {
 		t.Errorf("error deregistering: %s", err.Error())
 	}
 
 	ds1.Commit.Signature = "bad"
-	if err := dss.Deregister(ds1); err == nil {
+	if err := DeregisterDataset(dss, ds1); err == nil {
 		t.Error("unverifiable dataset should error")
 	}
 }
@@ -167,7 +167,7 @@ func TestDatasetsSortedRange(t *testing.T) {
 			return
 		}
 
-		if err := dss.Register(p); err != nil {
+		if err := RegisterDataset(dss, p); err != nil {
 			t.Error(err.Error())
 			return
 		}
@@ -178,8 +178,8 @@ func TestDatasetsSortedRange(t *testing.T) {
 		return
 	}
 
-	if _, ok := dss.Load("foo/a"); !ok {
-		t.Errorf("expected foo/a to load")
+	if _, ok := dss.Load("a/foo"); !ok {
+		t.Errorf("expected a/foo to load")
 		return
 	}
 

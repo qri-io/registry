@@ -16,30 +16,80 @@ var (
 // Register, Deregister, Load, Len, Range, and SortedRange should be
 // considered safe to hook up to public http endpoints, whereas
 // Delete & Store should only be exposed in administrative contexts
+// users should prefer using RegisterProfile & DegristerProfile for
+// dataset manipulation operations
 type Profiles interface {
-	// Register adds a profile to the list if it's valid and the desired handle isn't taken
-  Register(p *Profile) error 
-  // Deregister removes a profile from the registry if it exists
-  Deregister(p *Profile) error  
-
-  // Len returns the number of records in the set
-  Len() int 
-  // Load fetches a profile from the list by key
-  Load(key string) (value *Profile, ok bool) 
-  // Range calls an iteration fuction on each element in the map until
+	// Len returns the number of records in the set
+	Len() int
+	// Load fetches a profile from the list by key
+	Load(key string) (value *Profile, ok bool)
+	// Range calls an iteration fuction on each element in the map until
 	// the end of the list is reached or iter returns true
-  Range(iter func(key string, p *Profile) (brk bool)) 
-  // SortedRange is like range but with deterministic key ordering
-  SortedRange(iter func(key string, p *Profile) (brk bool)) 
+	Range(iter func(key string, p *Profile) (brk bool))
+	// SortedRange is like range but with deterministic key ordering
+	SortedRange(iter func(key string, p *Profile) (brk bool))
 
-  // Store adds an entry, bypassing the register process
-  // store is only exported for administrative use cases.
+	// Store adds an entry, bypassing the register process
+	// store is only exported for administrative use cases.
 	// most of the time callers should use Register instead
-  Store(key string, value *Profile)
-  // Delete removes a record from the set at key
-  // Delete is only exported for administrative use cases.
+	Store(key string, value *Profile)
+	// Delete removes a record from the set at key
+	// Delete is only exported for administrative use cases.
 	// most of the time callers should use Deregister instead
-  Delete(key string)
+	Delete(key string)
+}
+
+// RegisterProfile adds a profile to the list if it's valid and the desired handle isn't taken
+func RegisterProfile(store Profiles, p *Profile) error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	if err := p.Verify(); err != nil {
+		return err
+	}
+
+	if pro, ok := store.Load(p.Handle); ok {
+		// if peer is registring a name they already own, we're good
+		if pro.ProfileID == p.ProfileID {
+			return nil
+		}
+		return fmt.Errorf("handle '%s' is taken", p.Handle)
+	}
+
+	prev := ""
+	store.Range(func(key string, profile *Profile) bool {
+		if profile.ProfileID == p.ProfileID {
+			prev = key
+			return true
+		}
+		return false
+	})
+
+	if prev != "" {
+		store.Delete(prev)
+	}
+
+	store.Store(p.Handle, &Profile{
+		Handle:    p.Handle,
+		Created:   nowFunc(),
+		ProfileID: p.ProfileID,
+		PublicKey: p.PublicKey,
+	})
+	return nil
+}
+
+// DeregisterProfile removes a profile from the registry if it exists
+// confirming the user has the authority to do so
+func DeregisterProfile(store Profiles, p *Profile) error {
+	if err := p.Validate(); err != nil {
+		return err
+	}
+	if err := p.Verify(); err != nil {
+		return err
+	}
+
+	store.Delete(p.Handle)
+	return nil
 }
 
 // MemProfiles is a map of profile data safe for concurrent use
@@ -111,56 +161,4 @@ func (ps *MemProfiles) Store(key string, value *Profile) {
 	ps.Lock()
 	ps.internal[key] = value
 	ps.Unlock()
-}
-
-// Register adds a profile to the list if it's valid and the desired handle isn't taken
-func (ps *MemProfiles) Register(p *Profile) error {
-	if err := p.Validate(); err != nil {
-		return err
-	}
-	if err := p.Verify(); err != nil {
-		return err
-	}
-
-	if pro, ok := ps.Load(p.Handle); ok {
-		// if peer is registring a name they already own, we're good
-		if pro.ProfileID == p.ProfileID {
-			return nil
-		}
-		return fmt.Errorf("handle '%s' is taken", p.Handle)
-	}
-
-	prev := ""
-	ps.Range(func(key string, profile *Profile) bool {
-		if profile.ProfileID == p.ProfileID {
-			prev = key
-			return true
-		}
-		return false
-	})
-
-	if prev != "" {
-		ps.Delete(prev)
-	}
-
-	ps.Store(p.Handle, &Profile{
-		Handle:    p.Handle,
-		Created:   nowFunc(),
-		ProfileID: p.ProfileID,
-		PublicKey: p.PublicKey,
-	})
-	return nil
-}
-
-// Deregister removes a profile from the registry if it exists
-func (ps *MemProfiles) Deregister(p *Profile) error {
-	if err := p.Validate(); err != nil {
-		return err
-	}
-	if err := p.Verify(); err != nil {
-		return err
-	}
-
-	ps.Delete(p.Handle)
-	return nil
 }

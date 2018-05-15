@@ -2,14 +2,13 @@ package registry
 
 import (
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-crypto"
 )
 
-func TestProfilesRegister(t *testing.T) {
+func TestRegisterProfile(t *testing.T) {
 	ps := NewMemProfiles()
 
 	src := rand.New(rand.NewSource(0))
@@ -65,20 +64,19 @@ func TestProfilesRegister(t *testing.T) {
 	}
 
 	for i, c := range cases {
-		fmt.Printf("%d: %v\n", i, c.p.ProfileID)
-		err := ps.Register(c.p)
+		err := RegisterProfile(ps, c.p)
 		if !(err == nil && c.err == "" || err != nil && err.Error() == c.err) {
 			t.Errorf("case %d error mismatch. expected: '%s', got: '%s'", i, c.err, err)
 		}
 	}
 
-	if err := ps.Deregister(&Profile{}); err == nil {
+	if err := DeregisterProfile(ps, &Profile{}); err == nil {
 		t.Error("invalid profile should error")
 	}
-	if err := ps.Deregister(&Profile{ProfileID: p.ProfileID, Handle: p.Handle, PublicKey: p.PublicKey, Signature: base64.StdEncoding.EncodeToString(mismatchSig)}); err == nil {
+	if err := DeregisterProfile(ps, &Profile{ProfileID: p.ProfileID, Handle: p.Handle, PublicKey: p.PublicKey, Signature: base64.StdEncoding.EncodeToString(mismatchSig)}); err == nil {
 		t.Error("unverifiable profile should error")
 	}
-	if err := ps.Deregister(p2); err != nil {
+	if err := DeregisterProfile(ps, p2); err != nil {
 		t.Errorf("error deregistering: %s", err.Error())
 	}
 }
@@ -100,7 +98,7 @@ func TestProfilesSortedRange(t *testing.T) {
 			return
 		}
 
-		if err := ps.Register(p); err != nil {
+		if err := RegisterProfile(ps, p); err != nil {
 			t.Error(err.Error())
 			return
 		}

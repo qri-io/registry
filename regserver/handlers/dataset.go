@@ -67,29 +67,30 @@ func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 		switch r.Method {
 		case "GET":
 			var ok bool
-			if p.Handle != "" {
-				p, ok = datasets.Load(p.Handle)
-			} else {
+			if p.Path != "" {
 				datasets.Range(func(key string, dataset *registry.Dataset) bool {
-					if dataset.Key() == key {
-						p = dataset
+					if dataset.Path == p.Path {
+						*p = *dataset
 						ok = true
 						return true
 					}
 					return false
 				})
+			} else if p.Key() != "" {
+				p, ok = datasets.Load(p.Key())
 			}
+
 			if !ok {
 				apiutil.NotFoundHandler(w, r)
 				return
 			}
 		case "PUT", "POST":
-			if err := datasets.Register(p); err != nil {
+			if err := registry.RegisterDataset(datasets, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
 		case "DELETE":
-			if err := datasets.Deregister(p); err != nil {
+			if err := registry.DeregisterDataset(datasets, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}

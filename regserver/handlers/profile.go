@@ -84,12 +84,12 @@ func NewProfileHandler(profiles registry.Profiles) http.HandlerFunc {
 				return
 			}
 		case "PUT", "POST":
-			if err := profiles.Register(p); err != nil {
+			if err := registry.RegisterProfile(profiles, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
 		case "DELETE":
-			if err := profiles.Deregister(p); err != nil {
+			if err := registry.DeregisterProfile(profiles, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
