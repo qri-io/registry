@@ -20,6 +20,8 @@ var (
 	log = logrus.New()
 
 	adminKey string
+
+	nilSearch registry.NilSearch
 )
 
 func init() {
@@ -37,7 +39,7 @@ func main() {
 
 	s := http.Server{
 		Addr:    ":" + port,
-		Handler: handlers.NewRoutes(pro, profiles, datasets),
+		Handler: handlers.NewRoutes(pro, profiles, datasets, nilSearch),
 	}
 	log.Infof("serving on: %s", s.Addr)
 	if err := s.ListenAndServe(); err != nil {

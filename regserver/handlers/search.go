@@ -27,7 +27,7 @@ func NewSearchHandler(s registry.Searchable) http.HandlerFunc {
 		}
 		switch r.Method {
 		case "GET":
-			var ok bool
+			// var ok bool
 			if p.Q != "" {
 				results, err := s.Search(*p)
 				if err != nil {
