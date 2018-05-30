@@ -2,11 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/datatogether/api/apiutil"
 	"github.com/qri-io/registry"
+)
+
+const (
+	defaultOffset = 0
+	defaultLimit  = 25
 )
 
 // NewSearchHandler creates a search handler function taht operates on a *registry.Searchable
@@ -20,21 +24,27 @@ func NewSearchHandler(s registry.Searchable) http.HandlerFunc {
 				return
 			}
 		default:
-			err := fmt.Errorf("Content-Type must be application/json")
-			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
-			return
+			// read form values
+			var err error
+			if p.Limit, err = apiutil.ReqParamInt("limit", r); err != nil {
+				p.Limit = defaultLimit
+				err = nil
+			}
+			if p.Offset, err = apiutil.ReqParamInt("offset", r); err != nil {
+				p.Offset = defaultOffset
+				err = nil
+			}
+			p.Q = r.FormValue("q")
 		}
 		switch r.Method {
 		case "GET":
-			if p.Q != "" {
-				results, err := s.Search(*p)
-				if err != nil {
-					apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
-					return
-				}
-				apiutil.WriteResponse(w, results)
+			results, err := s.Search(*p)
+			if err != nil {
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
+			apiutil.WriteResponse(w, results)
+			return
 		}
 	}
 }
