@@ -12,7 +12,6 @@ import (
 // NewSearchHandler creates a search handler function taht operates on a *registry.Searchable
 func NewSearchHandler(s registry.Searchable) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// s := &registry.Search{}
 		p := &registry.SearchParams{}
 		switch r.Header.Get("Content-Type") {
 		case "application/json":
@@ -27,7 +26,6 @@ func NewSearchHandler(s registry.Searchable) http.HandlerFunc {
 		}
 		switch r.Method {
 		case "GET":
-			// var ok bool
 			if p.Q != "" {
 				results, err := s.Search(*p)
 				if err != nil {
