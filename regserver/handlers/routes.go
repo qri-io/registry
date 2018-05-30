@@ -11,19 +11,20 @@ import (
 
 var (
 	// logger
-	log      = logrus.New()
+	log = logrus.New()
 )
 
 // NewRoutes allocates server handlers along standard routes
-func NewRoutes(pro MethodProtector, ps registry.Profiles, ds registry.Datasets) http.Handler {
+func NewRoutes(pro MethodProtector, ps registry.Profiles, ds registry.Datasets, searchable registry.Searchable) http.Handler {
 
 	m := http.NewServeMux()
 	m.HandleFunc("/", apiutil.HealthCheckHandler)
 	m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
 	m.HandleFunc("/profiles", pro.ProtectMethods("POST")(logReq(NewProfilesHandler(ps))))
-	
+
 	m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds)))
 	m.HandleFunc("/datasets", pro.ProtectMethods("POST")(logReq(NewDatasetsHandler(ds))))
+	m.HandleFunc("/search", logReq(NewSearchHandler(searchable)))
 
 	return m
 }

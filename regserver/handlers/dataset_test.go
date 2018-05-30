@@ -13,8 +13,10 @@ import (
 	"github.com/qri-io/registry"
 )
 
+var nilSearch registry.NilSearch
+
 func TestDataset(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
 
 	b5, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {

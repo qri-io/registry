@@ -34,7 +34,7 @@ func init() {
 
 func TestProfileRequests(t *testing.T) {
 	handle := "b5"
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets()))
+	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})
