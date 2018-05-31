@@ -62,7 +62,7 @@ func (c Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.
 	if err != nil {
 		return nil, err
 	}
-
+	// add response to an envelope
 	env := struct {
 		Data *registry.Dataset
 		Meta struct {

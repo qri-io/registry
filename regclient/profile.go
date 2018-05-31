@@ -61,6 +61,7 @@ func (c Client) doJSONProfileReq(method string, p *registry.Profile) (*registry.
 		return nil, err
 	}
 
+	// add response to an envelope
 	env := struct {
 		Data *registry.Profile
 		Meta struct {
