@@ -11,17 +11,14 @@ import (
 func TestSearchRequests(t *testing.T) {
 
 	searchParams := &SearchParams{QueryString: "presidents", Limit: 100, Offset: 0}
-
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	memDs := registry.NewMemDatasets()
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})
-
-	expectedErr := "error 400: search not supported"
+	// TODO: need to add tests that actually inspect the search results
 	_, err := c.Search(searchParams)
-	if err == nil {
-		t.Errorf("expected nilSearch to return an error")
-	} else if err.Error() != expectedErr {
-		t.Errorf("error mismatch. expected: %s, got: %s", expectedErr, err.Error())
+	if err != nil {
+		t.Errorf("error executing search: %s", err)
 	}
 }

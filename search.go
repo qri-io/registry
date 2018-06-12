@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"strings"
 )
 
 // Searchable is an interface for supporting search
@@ -33,4 +34,25 @@ type NilSearch bool
 // Search returns an error indicating that search is not supported
 func (ns NilSearch) Search(p SearchParams) ([]Result, error) {
 	return nil, ErrSearchNotSupported
+}
+
+// MockSearch wraps a registry.Datasets and is used for testing purposes only
+type MockSearch struct {
+	Datasets Datasets
+}
+
+// Search is a trivial search implementation used for testing
+func (ms MockSearch) Search(p SearchParams) (results []Result, err error) {
+	ms.Datasets.Range(func(key string, ds *Dataset) bool {
+		dsname := ""
+		if ds.Meta != nil {
+			dsname = strings.ToLower(ds.Meta.Title)
+		}
+		if strings.Contains(dsname, strings.ToLower(p.Q)) {
+			result := &Result{Value: ds}
+			results = append(results, *result)
+		}
+		return false
+	})
+	return results, nil
 }
