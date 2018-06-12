@@ -5,7 +5,8 @@ import (
 	"strings"
 )
 
-// Searchable is an interface for supporting search
+// Searchable is an opt-in interface for registries that wish to
+// support search
 type Searchable interface {
 	Search(p SearchParams) ([]Result, error)
 }
@@ -36,7 +37,10 @@ func (ns NilSearch) Search(p SearchParams) ([]Result, error) {
 	return nil, ErrSearchNotSupported
 }
 
-// MockSearch wraps a registry.Datasets and is used for testing purposes only
+// MockSearch is a very naive implementation of search that wraps
+// registry.Datasets and only checks for exact substring matches of
+// dataset's meta.title property. It's mainly intended for testing
+// purposes.
 type MockSearch struct {
 	Datasets Datasets
 }
