@@ -10,12 +10,11 @@ import (
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
-var nilSearch registry.NilSearch
-
 func TestDatasetRequests(t *testing.T) {
 	handle := "b5"
 	name := "dataset"
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	memDs := registry.NewMemDatasets()
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})

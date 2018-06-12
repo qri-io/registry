@@ -10,12 +10,11 @@ import (
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
-var nilSearch registry.NilSearch
-
-// NewMockServer creates an in-memory mock server without any access protection and
-// a registry client to match
+// NewMockServer creates an in-memory mock server without any access
+// protection and a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
-	s := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	memDs := registry.NewMemDatasets()
+	s := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
 	return c, s
 }

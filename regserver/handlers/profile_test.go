@@ -53,7 +53,8 @@ func init() {
 }
 
 func TestProfile(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	ds := registry.NewMemDatasets()
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), ds, registry.MockSearch{ds}))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {

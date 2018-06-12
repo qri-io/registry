@@ -49,21 +49,52 @@ func (c Client) Search(p *SearchParams) ([]*registry.Result, error) {
 	return results, nil
 }
 
-func (c Client) doJSONSearchReq(method string, s *registry.SearchParams) ([]*registry.Result, error) {
-	if c.cfg.Location == "" {
-		return nil, ErrNoRegistry
-	}
-
+func (c Client) prepPostReq(s *registry.SearchParams) (*http.Request, error) {
 	data, err := json.Marshal(s)
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := http.NewRequest(method, fmt.Sprintf("%s/search", c.cfg.Location), bytes.NewReader(data))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/search", c.cfg.Location), bytes.NewReader(data))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	return req, nil
+}
+
+func (c Client) prepGetReq(s *registry.SearchParams) (*http.Request, error) {
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/search", c.cfg.Location), nil)
+	if err != nil {
+		return nil, err
+	}
+	q := req.URL.Query()
+	q.Add("q", s.Q)
+	if s.Limit > 0 {
+		q.Add("limit", fmt.Sprintf("%d", s.Limit))
+	}
+	if s.Offset > -1 {
+		q.Add("offset", fmt.Sprintf("%d", s.Offset))
+	}
+	req.URL.RawQuery = q.Encode()
+	return req, nil
+}
+
+func (c Client) doJSONSearchReq(method string, s *registry.SearchParams) (results []*registry.Result, err error) {
+	if c.cfg.Location == "" {
+		return nil, ErrNoRegistry
+	}
+	// req := &http.Request{}
+	var req *http.Request
+	switch method {
+	case "POST":
+		req, err = c.prepPostReq(s)
+	case "GET":
+		req, err = c.prepGetReq(s)
+	}
+	if err != nil {
+		return nil, err
+	}
+
 	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -85,6 +116,5 @@ func (c Client) doJSONSearchReq(method string, s *registry.SearchParams) ([]*reg
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
 	}
-
 	return env.Data, nil
 }
