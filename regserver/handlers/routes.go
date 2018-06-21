@@ -15,16 +15,24 @@ var (
 )
 
 // NewRoutes allocates server handlers along standard routes
-func NewRoutes(pro MethodProtector, ps registry.Profiles, ds registry.Datasets, searchable registry.Searchable) http.Handler {
-
+func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
 	m := http.NewServeMux()
 	m.HandleFunc("/", apiutil.HealthCheckHandler)
-	m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
-	m.HandleFunc("/profiles", pro.ProtectMethods("POST")(logReq(NewProfilesHandler(ps))))
 
-	m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds)))
-	m.HandleFunc("/datasets", pro.ProtectMethods("POST")(logReq(NewDatasetsHandler(ds))))
-	m.HandleFunc("/search", logReq(NewSearchHandler(searchable)))
+	if ps := reg.Profiles; ps != nil {
+		m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
+		m.HandleFunc("/profiles", pro.ProtectMethods("POST")(logReq(NewProfilesHandler(ps))))
+	}
+	if ds := reg.Datasets; ds != nil {
+		m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds)))
+		m.HandleFunc("/datasets", pro.ProtectMethods("POST")(logReq(NewDatasetsHandler(ds))))
+	}
+	if s := reg.Search; s != nil {
+		m.HandleFunc("/search", logReq(NewSearchHandler(s)))
+	}
+	if pinset := reg.Pinset; pinset != nil {
+		m.HandleFunc("/pins", logReq(NewPinsHandler(pinset)))
+	}
 
 	return m
 }

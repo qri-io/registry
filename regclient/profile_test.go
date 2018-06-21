@@ -35,7 +35,12 @@ func init() {
 func TestProfileRequests(t *testing.T) {
 	handle := "b5"
 	memDs := registry.NewMemDatasets()
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
+	reg := registry.Registry{
+		Profiles: registry.NewMemProfiles(),
+		Datasets: memDs,
+		Search:   &registry.MockSearch{memDs},
+	}
+	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

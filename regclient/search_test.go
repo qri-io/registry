@@ -11,8 +11,8 @@ import (
 func TestSearchRequests(t *testing.T) {
 
 	searchParams := &SearchParams{QueryString: "presidents", Limit: 100, Offset: 0}
-	memDs := registry.NewMemDatasets()
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
+
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.Registry{Profiles: registry.NewMemProfiles(), Datasets: registry.NewMemDatasets(), Search: nilSearch}))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})

@@ -13,8 +13,7 @@ import (
 func TestDatasetRequests(t *testing.T) {
 	handle := "b5"
 	name := "dataset"
-	memDs := registry.NewMemDatasets()
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.Registry{Profiles: registry.NewMemProfiles(), Datasets: registry.NewMemDatasets()}))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})
