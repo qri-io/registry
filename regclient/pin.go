@@ -62,6 +62,7 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 
 	data, err := json.Marshal(pr)
 	if err != nil {
+		fmt.Println("marshal err:", err.Error())
 		return nil, err
 	}
 
@@ -73,6 +74,10 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	res, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode == http.StatusNotFound {
+		return nil, registry.ErrPinsetNotSupported
 	}
 
 	// add response to an envelope
@@ -90,7 +95,6 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	}
 
 	if res.StatusCode != http.StatusOK {
-		fmt.Println("status code error")
 		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
 	}
 	return env.Data, nil

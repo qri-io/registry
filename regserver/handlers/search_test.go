@@ -14,9 +14,9 @@ import (
 
 func TestSearch(t *testing.T) {
 	reg := registry.Registry{
-		Profiles: registry.NewMemProfiles(), 
-		Datasets: registry.NewMemDatasets(), 
-		Search: nilSearch
+		Profiles: registry.NewMemProfiles(),
+		Datasets: registry.NewMemDatasets(),
+		Search:   nilSearch,
 	}
 	s := httptest.NewServer(NewRoutes(NewNoopProtector(), reg))
 

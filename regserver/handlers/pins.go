@@ -44,6 +44,7 @@ func NewPinsHandler(pinset registry.Pinset) http.HandlerFunc {
 				return
 			}
 		}
+
 		apiutil.WriteResponse(w, req)
 	}
 }

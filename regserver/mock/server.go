@@ -21,3 +21,18 @@ func NewMockServer() (*regclient.Client, *httptest.Server) {
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
 	return c, s
 }
+
+// NewMockServerWithMemPinset creates an in-memory mock server without any access protection and
+// a registry client to match, but also adds an in-memory pinset to test the /pin endpoint
+func NewMockServerWithMemPinset() (*regclient.Client, *httptest.Server) {
+	protek := handlers.NewNoopProtector()
+	prof := registry.NewMemProfiles()
+	reg := registry.Registry{
+		Profiles: prof,
+		Datasets: registry.NewMemDatasets(),
+		Pinset:   &registry.MemPinset{Profiles: prof},
+	}
+	s := httptest.NewServer(handlers.NewRoutes(protek, reg))
+	c := regclient.NewClient(&regclient.Config{Location: s.URL})
+	return c, s
+}

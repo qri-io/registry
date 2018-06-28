@@ -8,6 +8,9 @@ import (
 	"github.com/libp2p/go-libp2p-crypto"
 )
 
+// ErrPinsetNotSupported is a cannonical error for a repository that does not support pinning
+var ErrPinsetNotSupported = fmt.Errorf("pinset is not supported")
+
 // Pinset is the interface for acting as a remote pinning service
 type Pinset interface {
 	Pinned(path string) (bool, error)
