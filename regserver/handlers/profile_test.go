@@ -53,8 +53,7 @@ func init() {
 }
 
 func TestProfile(t *testing.T) {
-	ds := registry.NewMemDatasets()
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), ds, registry.MockSearch{ds}))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.Registry{Profiles: registry.NewMemProfiles(), Datasets: registry.NewMemDatasets()}))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -171,7 +170,7 @@ func TestProfile(t *testing.T) {
 }
 
 func TestProfiles(t *testing.T) {
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.Registry{Profiles: registry.NewMemProfiles(), Datasets: registry.NewMemDatasets()}))
 
 	p1, err := registry.ProfileFromPrivateKey("b5", privKey1)
 	if err != nil {
@@ -266,7 +265,7 @@ func TestProfiles(t *testing.T) {
 func TestPostProfiles(t *testing.T) {
 	un := "username"
 	pw := "password"
-	s := httptest.NewServer(NewRoutes(NewBAProtector(un, pw), registry.NewMemProfiles(), registry.NewMemDatasets(), nilSearch))
+	s := httptest.NewServer(NewRoutes(NewBAProtector(un, pw), registry.Registry{Profiles: registry.NewMemProfiles(), Datasets: registry.NewMemDatasets()}))
 	const profiles = `[
 	{
     "ProfileID": "QmamJUR83rGtDMEvugcC2gtLDx2nhZUTzpzhH6MA2Pb3Md",

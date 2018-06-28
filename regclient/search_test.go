@@ -10,12 +10,19 @@ import (
 
 func TestSearchRequests(t *testing.T) {
 
-	searchParams := &SearchParams{QueryString: "presidents", Limit: 100, Offset: 0}
 	memDs := registry.NewMemDatasets()
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), registry.NewMemProfiles(), memDs, &registry.MockSearch{memDs}))
+	reg := registry.Registry{
+		Profiles: registry.NewMemProfiles(),
+		Datasets: memDs,
+		Search:   registry.MockSearch{memDs},
+	}
+
+	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})
+
+	searchParams := &SearchParams{QueryString: "presidents", Limit: 100, Offset: 0}
 	// TODO: need to add tests that actually inspect the search results
 	_, err := c.Search(searchParams)
 	if err != nil {

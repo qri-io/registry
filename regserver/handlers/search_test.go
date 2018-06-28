@@ -13,8 +13,12 @@ import (
 )
 
 func TestSearch(t *testing.T) {
-	ds := registry.NewMemDatasets()
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.NewMemProfiles(), ds, &registry.MockSearch{ds}))
+	reg := registry.Registry{
+		Profiles: registry.NewMemProfiles(),
+		Datasets: registry.NewMemDatasets(),
+		Search:   nilSearch,
+	}
+	s := httptest.NewServer(NewRoutes(NewNoopProtector(), reg))
 
 	cases := []struct {
 		method      string
@@ -23,7 +27,7 @@ func TestSearch(t *testing.T) {
 		params      *registry.SearchParams
 		resStatus   int
 	}{
-		{"GET", "/search", "application/json", &registry.SearchParams{"abc", 0, 100}, 200},
+		{"GET", "/search", "application/json", &registry.SearchParams{"abc", 0, 100}, 400},
 	}
 
 	for i, c := range cases {
@@ -43,11 +47,13 @@ func TestSearch(t *testing.T) {
 			}
 			req.Body = ioutil.NopCloser(bytes.NewReader([]byte(data)))
 		}
+
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
 			t.Errorf("case %d unexpected error: %s", i, err)
 			continue
 		}
+
 		if res.StatusCode != c.resStatus {
 			t.Errorf("case %d res status mismatch. expected: %d, got: %d", i, c.resStatus, res.StatusCode)
 			continue
