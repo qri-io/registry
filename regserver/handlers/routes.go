@@ -17,7 +17,7 @@ var (
 // NewRoutes allocates server handlers along standard routes
 func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
 	m := http.NewServeMux()
-	m.HandleFunc("/status", apiutil.HealthCheckHandler)
+	m.HandleFunc("/", apiutil.HealthCheckHandler)
 
 	if ps := reg.Profiles; ps != nil {
 		m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
