@@ -12,39 +12,73 @@ import (
 // on a *registry.Profiles
 func NewPinsHandler(pinset registry.Pinset) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var (
-			req = &registry.PinRequest{}
-			err error
-		)
+		var status registry.PinStatus
 
-		switch r.Header.Get("Content-Type") {
-		case "application/json":
-			if err = json.NewDecoder(r.Body).Decode(req); err != nil {
-				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
-				return
-			}
-		default:
-			req.Path = r.FormValue("path")
+		req, err := parsePinReq(r)
+		if err != nil {
+			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+			return
 		}
 
 		switch r.Method {
 		case "POST":
-			if _, err = pinset.Pin(req); err != nil {
+			if statusChan, err := pinset.Pin(req); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
 				return
+			} else {
+				status = <-statusChan
 			}
+			apiutil.WriteResponse(w, status)
 		case "DELETE":
 			if err = pinset.Unpin(req); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
-				return
 			}
 		case "GET":
-			if req.Pinned, err = pinset.Pinned(req.Path); err != nil {
+			p := apiutil.PageFromRequest(r)
+			pins, err := pinset.Pins(p.Limit(), p.Offset())
+			if err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
 				return
 			}
+			apiutil.WriteResponse(w, pins)
+		default:
+			apiutil.NotFoundHandler(w, r)
+		}
+	}
+}
+
+// NewPinStatusHandler creates a handler for getting the pin status of a hash
+func NewPinStatusHandler(pinset registry.Pinset) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		req, err := parsePinReq(r)
+		if err != nil {
+			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+			return
 		}
 
-		apiutil.WriteResponse(w, req)
+		status, err := pinset.Status(req)
+		if err != nil {
+			if err.Error() == "not found" {
+				apiutil.WriteErrResponse(w, http.StatusNotFound, err)
+			} else {
+				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
+			}
+			return
+		}
+
+		apiutil.WriteResponse(w, status)
 	}
+}
+
+func parsePinReq(r *http.Request) (req *registry.PinRequest, err error) {
+	req = &registry.PinRequest{}
+
+	switch r.Header.Get("Content-Type") {
+	case "application/json":
+		err = json.NewDecoder(r.Body).Decode(req)
+	default:
+		req.Path = r.FormValue("path")
+	}
+
+	return
 }

@@ -27,12 +27,12 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	path := "/foo"
-	pinned, err := c.GetPinned(path)
+	path := "foo"
+	status, err := c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if pinned != false {
+	if status.Pinned != false {
 		t.Errorf("expected pinned '%s' to equal false", path)
 	}
 
@@ -40,11 +40,11 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	pinned, err = c.GetPinned(path)
+	status, err = c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if !pinned {
+	if !status.Pinned {
 		t.Errorf("expected pinned '%s' to equal true", path)
 	}
 
@@ -52,11 +52,11 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	pinned, err = c.GetPinned(path)
+	status, err = c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if pinned != false {
+	if status.Pinned != false {
 		t.Errorf("expected pinned '%s' to equal false", path)
 	}
 }

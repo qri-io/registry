@@ -32,6 +32,7 @@ func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
 	}
 	if pinset := reg.Pinset; pinset != nil {
 		m.HandleFunc("/pins", logReq(NewPinsHandler(pinset)))
+		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(pinset)))
 	}
 	if rs := reg.Reputations; rs != nil {
 		m.HandleFunc("/reputation", (logReq(NewReputationHandler(rs))))
