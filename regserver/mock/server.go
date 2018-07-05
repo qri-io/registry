@@ -13,9 +13,11 @@ import (
 // NewMockServer creates an in-memory mock server without any access protection and
 // a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
+	ds := registry.NewMemDatasets()
 	reg := registry.Registry{
 		Profiles: registry.NewMemProfiles(),
-		Datasets: registry.NewMemDatasets(),
+		Datasets: ds,
+		Search:   registry.MockSearch{ds},
 	}
 	s := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
@@ -27,10 +29,12 @@ func NewMockServer() (*regclient.Client, *httptest.Server) {
 func NewMockServerWithMemPinset() (*regclient.Client, *httptest.Server) {
 	protek := handlers.NewNoopProtector()
 	prof := registry.NewMemProfiles()
+	ds := registry.NewMemDatasets()
 	reg := registry.Registry{
 		Profiles: prof,
-		Datasets: registry.NewMemDatasets(),
+		Datasets: ds,
 		Pinset:   &registry.MemPinset{Profiles: prof},
+		Search:   registry.MockSearch{ds},
 	}
 	s := httptest.NewServer(handlers.NewRoutes(protek, reg))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
