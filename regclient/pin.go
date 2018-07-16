@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/libp2p/go-libp2p-crypto"
@@ -99,6 +100,9 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.httpClient.Do(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "no such host") {
+			return nil, ErrNoRegistry
+		}
 		return nil, err
 	}
 
@@ -123,6 +127,10 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
 	}
+	if env.Data == nil {
+		return &registry.PinStatus{}, nil
+	}
+
 	return env.Data, nil
 }
 
