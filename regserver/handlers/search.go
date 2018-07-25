@@ -23,6 +23,9 @@ func NewSearchHandler(s registry.Searchable) http.HandlerFunc {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
+			if p.Limit == 0 {
+				p.Limit = defaultLimit
+			}
 		default:
 			// read form values
 			var err error
