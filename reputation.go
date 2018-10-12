@@ -5,8 +5,7 @@ import (
 )
 
 // Reputation is record of the peers reputation on the network
-// This is a stub to be filled in later
-
+// TODO: this is a stub that can and should be expanded
 type Reputation struct {
 	ProfileID string
 	Rep       int

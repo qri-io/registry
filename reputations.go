@@ -32,17 +32,22 @@ type Reputations interface {
 	Delete(key string)
 }
 
+// MemReputations is a map of reputation data safe for concurrent use
+// heavily inspired by sync.Map
 type MemReputations struct {
 	sync.RWMutex
 	internal map[string]*Reputation
 }
 
+// NewMemReputations allocates a new *MemReputations map
 func NewMemReputations() *MemReputations {
 	return &MemReputations{
 		internal: make(map[string]*Reputation),
 	}
 }
 
+// Add adds the reputation to the map of reputations
+// it Validates the reputation before adding it
 func (rs *MemReputations) Add(r *Reputation) error {
 	err := r.Validate()
 	if err != nil {
@@ -52,11 +57,12 @@ func (rs *MemReputations) Add(r *Reputation) error {
 	return nil
 }
 
-//
+// Len returns the number of records in the map
 func (rs *MemReputations) Len() int {
 	return len(rs.internal)
 }
 
+// Load fetches a reputation from the list by key
 func (rs *MemReputations) Load(key string) (value *Reputation, ok bool) {
 	rs.RLock()
 	result, ok := rs.internal[key]
