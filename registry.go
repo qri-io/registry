@@ -24,8 +24,9 @@ package registry
 
 // Registry a collection of interfaces that together form a registry service
 type Registry struct {
-	Profiles Profiles
-	Datasets Datasets
-	Pinset   Pinset
-	Search   Searchable
+	Profiles    Profiles
+	Datasets    Datasets
+	Pinset      Pinset
+	Search      Searchable
+	Reputations Reputations
 }
