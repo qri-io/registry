@@ -33,6 +33,14 @@ func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
 	if pinset := reg.Pinset; pinset != nil {
 		m.HandleFunc("/pins", logReq(NewPinsHandler(pinset)))
 	}
+	// TODO: we want to lay the groundwork for getting a peer's reputation
+	// on the registry. We know we need an endpoint `/reputation` that
+	// will respond with an integer. Qri will use that integer to determine
+	// how to treat the connection with that peer. For now, let's just return
+	// zero, and refactor in the future when we do a deep dive on reputation
+	m.HandleFunc("/reputation", (logReq(func(w http.ResponseWriter, r *http.Request) {
+		apiutil.WriteResponse(w, map[string]int{"reputation": 0})
+	})))
 
 	return m
 }
