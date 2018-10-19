@@ -11,11 +11,12 @@ type Reputation struct {
 	Rep       int
 }
 
-// NewReputation creates a new reputation. Reputations start at 0 for now
+// NewReputation creates a new reputation. Reputations start at 1 for now
+// REPUTATIONS MUST BE NON-ZERO NUMBERS
 func NewReputation(id string) *Reputation {
 	return &Reputation{
 		ProfileID: id,
-		Rep:       0,
+		Rep:       1,
 	}
 }
 

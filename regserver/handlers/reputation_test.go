@@ -15,7 +15,7 @@ import (
 func TestReputation(t *testing.T) {
 	freshRep := &registry.Reputation{
 		ProfileID: "freshRep",
-		Rep:       0,
+		Rep:       1,
 	}
 
 	badRep := &registry.Reputation{
@@ -25,7 +25,7 @@ func TestReputation(t *testing.T) {
 
 	goodRep := &registry.Reputation{
 		ProfileID: "goodRep",
-		Rep:       1,
+		Rep:       10,
 	}
 
 	memReps := registry.NewMemReputations()

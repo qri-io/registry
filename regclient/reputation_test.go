@@ -42,8 +42,8 @@ func TestReputationRequests(t *testing.T) {
 		t.Error(err)
 		return
 	}
-	if 0 != rep.Reputation() {
-		t.Errorf("reputation value not equal: expect -1, got %d", rep.Reputation())
+	if 1 != rep.Reputation() {
+		t.Errorf("reputation value not equal: expect 1, got %d", rep.Reputation())
 	}
 	if memRs.Len() != 2 {
 		t.Errorf("reputations list should equal 2, got %d", memRs.Len())
