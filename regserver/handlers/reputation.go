@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/datatogether/api/apiutil"
 	"github.com/qri-io/registry"
@@ -43,6 +44,10 @@ func NewReputationHandler(rs registry.Reputations) http.HandlerFunc {
 			apiutil.NotFoundHandler(w, r)
 			return
 		}
-		apiutil.WriteResponse(w, rep)
+		res := registry.ReputationResponse{
+			Reputation: rep,
+			Expiration: time.Hour * 24,
+		}
+		apiutil.WriteResponse(w, res)
 	}
 }

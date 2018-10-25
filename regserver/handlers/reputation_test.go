@@ -40,7 +40,7 @@ func TestReputation(t *testing.T) {
 	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.Registry{Reputations: memReps}))
 
 	type env struct {
-		Data *registry.Reputation
+		Data *registry.ReputationResponse
 		Meta struct {
 			Code int
 		}
@@ -97,12 +97,15 @@ func TestReputation(t *testing.T) {
 				continue
 			}
 
-			if c.reputation.ProfileID != e.Data.ProfileID {
-				t.Errorf("case %d reputation profileID mismatch. expected: %s, got:%s", i, c.reputation.ProfileID, e.Data.ProfileID)
+			res := e.Data
+			rep := res.Reputation
+
+			if c.reputation.ProfileID != rep.ProfileID {
+				t.Errorf("case %d reputation profileID mismatch. expected: %s, got:%s", i, c.reputation.ProfileID, rep.ProfileID)
 			}
 
-			if c.reputation.Rep != e.Data.Rep {
-				t.Errorf("case %d Reputation mismatch. expected: %d, got: %d", i, c.reputation.Rep, e.Data.Rep)
+			if c.reputation.Rep != rep.Rep {
+				t.Errorf("case %d Reputation mismatch. expected: %d, got: %d", i, c.reputation.Rep, rep.Rep)
 			}
 		}
 	}

@@ -10,17 +10,17 @@ import (
 )
 
 // GetReputation gets the reputation of a profile using the ProfileID
-func (c Client) GetReputation(id string) (*registry.Reputation, error) {
+func (c Client) GetReputation(id string) (*registry.ReputationResponse, error) {
 	repReq := registry.NewReputation(id)
-	rep, err := c.doJSONReputationReq("GET", repReq)
+	res, err := c.doJSONReputationReq("GET", repReq)
 	if err != nil {
 		return nil, err
 	}
-	return rep, nil
+	return res, nil
 }
 
 // doJSONReputationReq is a common wrapper for /reputation endpoint requests
-func (c Client) doJSONReputationReq(method string, rep *registry.Reputation) (*registry.Reputation, error) {
+func (c Client) doJSONReputationReq(method string, rep *registry.Reputation) (*registry.ReputationResponse, error) {
 	if c.cfg.Location == "" {
 		return nil, ErrNoRegistry
 	}
@@ -41,7 +41,7 @@ func (c Client) doJSONReputationReq(method string, rep *registry.Reputation) (*r
 	}
 
 	env := struct {
-		Data *registry.Reputation
+		Data *registry.ReputationResponse
 		Meta struct {
 			Error  string
 			Status string

@@ -2,6 +2,7 @@ package registry
 
 import (
 	"fmt"
+	"time"
 )
 
 // Reputation is record of the peers reputation on the network
@@ -37,4 +38,9 @@ func (r *Reputation) SetReputation(reputation int) {
 // Reputation gets the rep of a given Reputation
 func (r *Reputation) Reputation() int {
 	return r.Rep
+}
+
+type ReputationResponse struct {
+	Reputation *Reputation
+	Expiration time.Duration
 }

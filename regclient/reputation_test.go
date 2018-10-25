@@ -1,9 +1,9 @@
 package regclient
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/qri-io/registry"
 	"github.com/qri-io/registry/regserver/handlers"
@@ -28,23 +28,37 @@ func TestReputationRequests(t *testing.T) {
 		Location: ts.URL,
 	})
 
-	rep, err := c.GetReputation(profileID)
+	res, err := c.GetReputation(profileID)
 	if err != nil {
 		t.Error(err)
 		return
-	}
-	if -1 != rep.Reputation() {
-		t.Error(fmt.Errorf("reputation value not equal: expect -1, got %d", rep.Reputation()))
 	}
 
-	rep, err = c.GetReputation(profileID2)
+	rep := res.Reputation
+	ttl := res.Expiration
+	if -1 != rep.Reputation() {
+		t.Errorf("reputation value not equal: expect -1, got %d\n", rep.Reputation())
+	}
+
+	if ttl != time.Hour*24 {
+		t.Errorf("reputation expiration not equal: expect 24 hours got %d\n", ttl)
+	}
+
+	res, err = c.GetReputation(profileID2)
 	if err != nil {
 		t.Error(err)
 		return
 	}
+
+	rep = res.Reputation
+	ttl = res.Expiration
 	if 1 != rep.Reputation() {
 		t.Errorf("reputation value not equal: expect 1, got %d", rep.Reputation())
 	}
+	if ttl != time.Hour*24 {
+		t.Errorf("reputation expiration not equal: expect 24 hours got %d\n", ttl)
+	}
+
 	if memRs.Len() != 2 {
 		t.Errorf("reputations list should equal 2, got %d", memRs.Len())
 	}
