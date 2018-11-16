@@ -40,6 +40,7 @@ func (r *Reputation) Reputation() int {
 	return r.Rep
 }
 
+// ReputationResponse is the result of a request for a reputation
 type ReputationResponse struct {
 	Reputation *Reputation
 	Expiration time.Duration
