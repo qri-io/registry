@@ -13,30 +13,33 @@ import (
 // NewMockServer creates an in-memory mock server without any access protection and
 // a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
-	ds := registry.NewMemDatasets()
-	reg := registry.Registry{
-		Profiles: registry.NewMemProfiles(),
-		Datasets: ds,
-		Search:   registry.MockSearch{ds},
-	}
+	return NewMockServerRegistry(NewMemRegistry())
+}
+
+// NewMockServerRegistry creates a mock server & client with a passed-in registry
+func NewMockServerRegistry(reg registry.Registry) (*regclient.Client, *httptest.Server) {
 	s := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
 	return c, s
 }
 
-// NewMockServerWithMemPinset creates an in-memory mock server without any access protection and
-// a registry client to match, but also adds an in-memory pinset to test the /pin endpoint
-func NewMockServerWithMemPinset() (*regclient.Client, *httptest.Server) {
-	protek := handlers.NewNoopProtector()
+// NewMemRegistry creates a new in-memory registry
+func NewMemRegistry() registry.Registry {
+	return registry.Registry{
+		Profiles: registry.NewMemProfiles(),
+		Datasets: registry.NewMemDatasets(),
+	}
+}
+
+// NewMemRegistryPinset creates an in-memory registry without any access protection,
+// a registry client, and an in-memory pinset
+func NewMemRegistryPinset() registry.Registry {
 	prof := registry.NewMemProfiles()
 	ds := registry.NewMemDatasets()
-	reg := registry.Registry{
+	return registry.Registry{
 		Profiles: prof,
 		Datasets: ds,
 		Pinset:   &registry.MemPinset{Profiles: prof},
-		Search:   registry.MockSearch{ds},
+		Search:   registry.MockSearch{Datasets: ds},
 	}
-	s := httptest.NewServer(handlers.NewRoutes(protek, reg))
-	c := regclient.NewClient(&regclient.Config{Location: s.URL})
-	return c, s
 }
