@@ -35,6 +35,21 @@ func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 			}
 			fallthrough
 		case "GET":
+			// get params for limit and offset
+			// make limit and offset logical
+			// return datasets that follow limit and offset:
+			// 	res := make([]repo.DatasetRef, limit)
+			// 	for i, ref := range names {
+			// 		if i < offset {
+			// 			continue
+			// 		}
+			// 		if i-offset == limit {
+			// 			return res, nil
+			// 		}
+			// 		res[i-offset] = ref
+			// 	}
+			// 	return res[:len(names)-offset], nil
+			// }
 			ps := make([]*registry.Dataset, datasets.Len())
 
 			i := 0

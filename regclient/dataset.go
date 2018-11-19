@@ -50,6 +50,11 @@ func (c Client) DeleteDataset(peername, dsname string, ds *dataset.DatasetPod, p
 	return err
 }
 
+// ListDatasets returns a list of the datasets in the registry, using limit and offset
+func (c Client) ListDataset() error {
+	return fmt.Errorf("temp error")
+}
+
 func (c Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.Dataset, error) {
 	if c.cfg.Location == "" {
 		return nil, ErrNoRegistry
