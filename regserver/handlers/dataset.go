@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/datatogether/api/apiutil"
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/ns"
 )
 
 // NewDatasetsHandler creates a datasets handler function that operates
@@ -59,26 +61,42 @@ func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 				return
 			}
 		default:
-			err := fmt.Errorf("Content-Type must be application/json")
-			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
-			return
+			if r.Method != "GET" {
+				err := fmt.Errorf("Content-Type must be application/json")
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+				return
+			}
 		}
 
 		switch r.Method {
 		case "GET":
-			var ok bool
-			if p.Path != "" {
-				datasets.Range(func(key string, dataset *registry.Dataset) bool {
-					if dataset.Path == p.Path {
-						*p = *dataset
-						ok = true
-						return true
-					}
-					return false
-				})
-			} else if p.Key() != "" {
-				p, ok = datasets.Load(p.Key())
+			if !strings.HasPrefix(r.URL.Path, "/dataset/") {
+				err := fmt.Errorf("no reference provided")
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+				return
 			}
+			path := ns.HTTPPathToQriPath(r.URL.Path[len("/dataset/"):])
+			ref, err := ns.ParseRef(path)
+			if err != nil {
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+				return
+			}
+
+			if ref.IsEmpty() {
+				err := fmt.Errorf("no reference provided")
+				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+				return
+			}
+
+			var ok bool
+			datasets.Range(func(key string, dataset *registry.Dataset) bool {
+				if dataset.Path == ref.Path || (ref.Name == dataset.Name && ref.Peername == dataset.Handle) {
+					*p = *dataset
+					ok = true
+					return true
+				}
+				return false
+			})
 
 			if !ok {
 				apiutil.NotFoundHandler(w, r)

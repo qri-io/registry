@@ -9,12 +9,19 @@ import (
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/dataset"
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/ns"
 )
 
 // GetDataset fetches a dataset from a registry
 func (c Client) GetDataset(peername, dsname, profileID, hash string) (*dataset.DatasetPod, error) {
-	d := registry.NewDatasetRef(peername, dsname, profileID, hash)
-	ds, err := c.doJSONDatasetReq("GET", d)
+	ref := ns.Ref{
+		Peername:  peername,
+		Name:      dsname,
+		ProfileID: profileID,
+		Path:      hash,
+	}
+
+	ds, err := c.doDatasetReq("GET", ref)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +69,11 @@ func (c Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.
 	if err != nil {
 		return nil, err
 	}
+
+	return handleJSONDatasetRes(res)
+}
+
+func handleJSONDatasetRes(res *http.Response) (*registry.Dataset, error) {
 	// add response to an envelope
 	env := struct {
 		Data *registry.Dataset
@@ -81,4 +93,20 @@ func (c Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.
 	}
 
 	return env.Data, nil
+}
+
+func (c Client) doDatasetReq(method string, ref ns.Ref) (*registry.Dataset, error) {
+	if c.cfg.Location == "" {
+		return nil, ErrNoRegistry
+	}
+
+	req, err := http.NewRequest(method, fmt.Sprintf("%s/dataset/%s", c.cfg.Location, ref.String()), nil)
+	if err != nil {
+		return nil, err
+	}
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return handleJSONDatasetRes(res)
 }
