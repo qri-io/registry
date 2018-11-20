@@ -22,7 +22,7 @@ type Pinset interface {
 	Unpin(req *PinRequest) error
 	// Status gets the current pin state value for a given PinRequest
 	Status(req *PinRequest) (PinStatus, error)
-	// Pins lists pins within the range defoined by limit & offset in
+	// Pins lists pins within the range defined by limit & offset in
 	// lexographical order
 	Pins(limit, offset int) ([]string, error)
 	// PinLen returns the number of pins in the set
