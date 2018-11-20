@@ -82,7 +82,7 @@ func (c Client) Unpin(path string, privKey crypto.PrivKey) error {
 	return nil
 }
 
-// doJSONProfileReq is a common wrapper for /profile endpoint requests
+// doJSONPinReq is a common wrapper for /pin endpoint requests
 func (c Client) doJSONPinReq(method string, pr *pinset.PinRequest) (*pinset.PinStatus, error) {
 	if c.cfg.Location == "" {
 		return nil, ErrNoRegistry

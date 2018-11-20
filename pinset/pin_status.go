@@ -24,7 +24,7 @@ type PinStatus struct {
 	Pinned      bool
 	TTL         time.Time
 	PctComplete float32
-	// optional string representing status, intended to be shown to userss
+	// optional string representing status, intended to be shown to users
 	Status string
 	Error  string
 }
