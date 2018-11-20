@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p-crypto"
+	"github.com/qri-io/registry"
 	"github.com/qri-io/registry/pinset"
 )
 
@@ -107,7 +108,7 @@ func (c Client) doJSONPinReq(method string, pr *pinset.PinRequest) (*pinset.PinS
 	}
 
 	if res.StatusCode == http.StatusNotFound {
-		return nil, pinset.ErrPinsetNotSupported
+		return nil, registry.ErrPinsetNotSupported
 	}
 
 	// add response to an envelope

@@ -6,10 +6,6 @@ import (
 	"github.com/qri-io/registry"
 )
 
-// ErrPinsetNotSupported is a cannonical error for a repository that does not
-// support pinning
-var ErrPinsetNotSupported = fmt.Errorf("pinset is not supported")
-
 // Pinset is the interface for acting as a remote pinning service.
 // Pinset implementations are expected to keep a store of PinStatus
 // that callers can use to probe the progress of a request
