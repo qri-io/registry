@@ -2,6 +2,7 @@ package pinset
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/qri-io/registry"
 )
@@ -23,7 +24,7 @@ type Pinset interface {
 	// Status gets the current pin state value for a given PinRequest
 	Status(req *PinRequest) (PinStatus, error)
 	// Pins lists pins within the range defined by limit & offset in
-	// lexographical order
+	// lexographical order, smallest to largest
 	Pins(limit, offset int) ([]string, error)
 	// PinLen returns the number of pins in the set
 	PinLen() (int, error)
@@ -38,18 +39,17 @@ type MemPinset struct {
 	pins     []string
 }
 
+func insertSorted(list []string, elem string) []string {
+	index := sort.Search(len(list), func(i int) bool { return list[i] > elem })
+	list = append(list, "")
+	copy(list[index + 1:], list[index:])
+	list[index] = elem
+	return list
+}
+
 // Pin a dataset
 func (m *MemPinset) Pin(req *PinRequest) (chan PinStatus, error) {
-	if len(m.pins) == 0 {
-		m.pins = append(m.pins, req.Path)
-	} else {
-		for i, p := range m.pins {
-			if req.Path > p {
-				m.pins = append(append(m.pins[:i], req.Path), m.pins[i:]...)
-				break
-			}
-		}
-	}
+	m.pins = insertSorted(m.pins, req.Path)
 
 	pc := make(chan PinStatus)
 	go func() {
@@ -101,7 +101,7 @@ func (m *MemPinset) Pinned(path string) (pinned bool, err error) {
 // Pins reads from the list present in the pinset
 func (m *MemPinset) Pins(limit, offset int) (pins []string, err error) {
 	for i, p := range m.pins {
-		if i > offset {
+		if i < offset {
 			continue
 		}
 		pins = append(pins, p)

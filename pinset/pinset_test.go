@@ -3,12 +3,13 @@ package pinset
 import (
 	"encoding/base64"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/libp2p/go-libp2p-crypto"
 )
 
-func comparePinRequest(a, b *PinRequest) error {
+func ensurePinRequestEqual(a, b *PinRequest) error {
 	if a.ProfileID != b.ProfileID {
 		return fmt.Errorf("ProfileID mismatch: %s != %s", a.ProfileID, b.ProfileID)
 	}
@@ -50,9 +51,30 @@ func TestNewPinRequest(t *testing.T) {
 			continue
 		}
 
-		if err = comparePinRequest(&c.res, pr); err != nil {
+		if err = ensurePinRequestEqual(&c.res, pr); err != nil {
 			t.Errorf("case %d: %s", i, err.Error())
 			continue
+		}
+	}
+}
+
+func TestInsertSorted(t *testing.T) {
+	cases := []struct {
+		list   []string
+		elem   string
+		expect []string
+	}{
+		{[]string{}, "e", []string{"e"}},
+		{[]string{"b"}, "e", []string{"b","e"}},
+		{[]string{"m"}, "e", []string{"e","m"}},
+		{[]string{"b","d","m"}, "e", []string{"b","d","e","m"}},
+		{[]string{"m","p","x"}, "e", []string{"e","m","p","x"}},
+	}
+
+	for i, c := range cases {
+		got := insertSorted(c.list, c.elem)
+		if !reflect.DeepEqual(got, c.expect) {
+			t.Errorf("case %d failed, got: %s, expected: %s", i, got, c.expect)
 		}
 	}
 }
