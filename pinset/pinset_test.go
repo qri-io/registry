@@ -1,4 +1,4 @@
-package registry
+package pinset
 
 import (
 	"encoding/base64"

@@ -26,7 +26,6 @@ package registry
 type Registry struct {
 	Profiles    Profiles
 	Datasets    Datasets
-	Pinset      Pinset
-	Search      Searchable
 	Reputations Reputations
+	Search      Searchable
 }

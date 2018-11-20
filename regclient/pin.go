@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p-crypto"
-	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 )
 
 // Status checks if a given path is pinned to this registry
-func (c Client) Status(path string) (s registry.PinStatus, err error) {
+func (c Client) Status(path string) (s pinset.PinStatus, err error) {
 	var (
 		req *http.Request
 		res *http.Response
@@ -30,7 +30,7 @@ func (c Client) Status(path string) (s registry.PinStatus, err error) {
 	}
 
 	rs := struct {
-		Data registry.PinStatus
+		Data pinset.PinStatus
 	}{}
 	if err = json.NewDecoder(res.Body).Decode(&rs); err != nil {
 		return
@@ -41,7 +41,7 @@ func (c Client) Status(path string) (s registry.PinStatus, err error) {
 
 // Pin requests a dataset be replicated on the registry
 func (c Client) Pin(path string, privKey crypto.PrivKey, addrs []string) error {
-	req, err := registry.NewPinRequest(path, privKey, addrs)
+	req, err := pinset.NewPinRequest(path, privKey, addrs)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (c Client) Pin(path string, privKey crypto.PrivKey, addrs []string) error {
 
 // Unpin requests a dataset not be replicated to the registry
 func (c Client) Unpin(path string, privKey crypto.PrivKey) error {
-	req, err := registry.NewPinRequest(path, privKey, nil)
+	req, err := pinset.NewPinRequest(path, privKey, nil)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (c Client) Unpin(path string, privKey crypto.PrivKey) error {
 }
 
 // doJSONProfileReq is a common wrapper for /profile endpoint requests
-func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.PinStatus, error) {
+func (c Client) doJSONPinReq(method string, pr *pinset.PinRequest) (*pinset.PinStatus, error) {
 	if c.cfg.Location == "" {
 		return nil, ErrNoRegistry
 	}
@@ -107,12 +107,12 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	}
 
 	if res.StatusCode == http.StatusNotFound {
-		return nil, registry.ErrPinsetNotSupported
+		return nil, pinset.ErrPinsetNotSupported
 	}
 
 	// add response to an envelope
 	env := struct {
-		Data *registry.PinStatus
+		Data *pinset.PinStatus
 		Meta struct {
 			Error  string
 			Status string
@@ -128,7 +128,7 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
 	}
 	if env.Data == nil {
-		return &registry.PinStatus{}, nil
+		return &pinset.PinStatus{}, nil
 	}
 
 	return env.Data, nil
@@ -136,9 +136,9 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 
 const stdPollInterval = time.Duration(time.Second)
 
-func (c Client) statusPoll(path string, interval time.Duration) (updates chan registry.PinStatus, done func()) {
+func (c Client) statusPoll(path string, interval time.Duration) (updates chan pinset.PinStatus, done func()) {
 	tick := time.NewTicker(interval)
-	updates = make(chan registry.PinStatus)
+	updates = make(chan pinset.PinStatus)
 	done = func() {
 		tick.Stop()
 		close(updates)

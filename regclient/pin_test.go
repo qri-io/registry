@@ -5,18 +5,18 @@ import (
 	"testing"
 
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
 func TestPinRequests(t *testing.T) {
 	ps := registry.NewMemProfiles()
-	pins := &registry.MemPinset{Profiles: ps}
+	pins := &pinset.MemPinset{Profiles: ps}
 	reg := registry.Registry{
 		Profiles: ps,
 		Datasets: registry.NewMemDatasets(),
-		Pinset:   pins,
 	}
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	ts := httptest.NewServer(handlers.NewRoutesPinset(handlers.NewNoopProtector(), reg, pins))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

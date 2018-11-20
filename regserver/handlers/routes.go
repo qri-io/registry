@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,7 +15,7 @@ var (
 )
 
 // NewRoutes allocates server handlers along standard routes
-func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
+func NewRoutes(pro MethodProtector, reg registry.Registry) *http.ServeMux {
 	m := http.NewServeMux()
 	m.HandleFunc("/", HealthCheckHandler)
 
@@ -30,14 +31,19 @@ func NewRoutes(pro MethodProtector, reg registry.Registry) http.Handler {
 	if s := reg.Search; s != nil {
 		m.HandleFunc("/search", logReq(NewSearchHandler(s)))
 	}
-	if pinset := reg.Pinset; pinset != nil {
-		m.HandleFunc("/pins", logReq(NewPinsHandler(pinset)))
-		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(pinset)))
-	}
 	if rs := reg.Reputations; rs != nil {
 		m.HandleFunc("/reputation", (logReq(NewReputationHandler(rs))))
 	}
+	return m
+}
 
+// NewRoutesPinset adds standard routes and pinset routes
+func NewRoutesPinset(pro MethodProtector, reg registry.Registry, ps pinset.Pinset) *http.ServeMux {
+	m := NewRoutes(pro, reg)
+	if ps != nil {
+		m.HandleFunc("/pins", logReq(NewPinsHandler(ps)))
+		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(ps)))
+	}
 	return m
 }
 
