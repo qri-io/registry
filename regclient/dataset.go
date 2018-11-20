@@ -51,8 +51,40 @@ func (c Client) DeleteDataset(peername, dsname string, ds *dataset.DatasetPod, p
 }
 
 // ListDatasets returns a list of the datasets in the registry, using limit and offset
-func (c Client) ListDataset() error {
-	return fmt.Errorf("temp error")
+func (c Client) ListDatasets(limit, offset int) ([]*registry.Dataset, error) {
+	if c.cfg.Location == "" {
+		return nil, ErrNoRegistry
+	}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/datasets?limit=%d&offset=%d", c.cfg.Location, limit, offset), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	env := struct {
+		Data []*registry.Dataset
+		Meta struct {
+			Error  string
+			Status string
+			Code   int
+		}
+	}{}
+
+	if err := json.NewDecoder(res.Body).Decode(&env); err != nil {
+		return nil, err
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
+	}
+
+	return env.Data, nil
 }
 
 func (c Client) doJSONDatasetReq(method string, d *registry.Dataset) (*registry.Dataset, error) {

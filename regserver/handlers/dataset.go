@@ -11,6 +11,10 @@ import (
 	"github.com/qri-io/registry/ns"
 )
 
+// DefaultLimit is the default limit of datasets that will get sent back on
+// a dataset list request
+const DefaultLimit = 25
+
 // NewDatasetsHandler creates a datasets handler function that operates
 // on a *registry.Datasets
 func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
@@ -35,31 +39,37 @@ func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 			}
 			fallthrough
 		case "GET":
-			// get params for limit and offset
-			// make limit and offset logical
-			// return datasets that follow limit and offset:
-			// 	res := make([]repo.DatasetRef, limit)
-			// 	for i, ref := range names {
-			// 		if i < offset {
-			// 			continue
-			// 		}
-			// 		if i-offset == limit {
-			// 			return res, nil
-			// 		}
-			// 		res[i-offset] = ref
-			// 	}
-			// 	return res[:len(names)-offset], nil
-			// }
-			ps := make([]*registry.Dataset, datasets.Len())
+			var limit, offset int
+			if i, err := apiutil.ReqParamInt("limit", r); err == nil {
+				limit = i
+			}
+			if i, err := apiutil.ReqParamInt("offset", r); err == nil {
+				offset = i
+			}
+			if offset < 0 {
+				offset = 0
+			}
+			if limit <= 0 {
+				limit = DefaultLimit
+			}
+
+			ps := make([]*registry.Dataset, limit)
 
 			i := 0
+
 			datasets.SortedRange(func(key string, p *registry.Dataset) bool {
+				if i < offset {
+					i++
+					return false
+				}
+				if i-offset == limit {
+					return true
+				}
 				ps[i] = p
 				i++
 				return false
 			})
-
-			apiutil.WriteResponse(w, ps)
+			apiutil.WriteResponse(w, ps[:datasets.Len()-offset])
 		}
 	}
 }
