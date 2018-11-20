@@ -22,11 +22,16 @@ tools like servers & (eventually) command-line clients
 */
 package registry
 
+import "fmt"
+
 // Registry a collection of interfaces that together form a registry service
 type Registry struct {
 	Profiles    Profiles
 	Datasets    Datasets
-	Pinset      Pinset
-	Search      Searchable
 	Reputations Reputations
+	Search      Searchable
 }
+
+// ErrPinsetNotSupported is a cannonical error for a repository that does not
+// support pinning
+var ErrPinsetNotSupported = fmt.Errorf("pinset is not supported")

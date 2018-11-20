@@ -5,46 +5,81 @@ import (
 	"net/http"
 
 	"github.com/datatogether/api/apiutil"
-	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 )
 
 // NewPinsHandler creates a profiles handler function that operates
 // on a *registry.Profiles
-func NewPinsHandler(pinset registry.Pinset) http.HandlerFunc {
+func NewPinsHandler(ps pinset.Pinset) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var (
-			req = &registry.PinRequest{}
-			err error
-		)
+		var status pinset.PinStatus
 
-		switch r.Header.Get("Content-Type") {
-		case "application/json":
-			if err = json.NewDecoder(r.Body).Decode(req); err != nil {
-				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
-				return
-			}
-		default:
-			req.Path = r.FormValue("path")
+		req, err := parsePinReq(r)
+		if err != nil {
+			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+			return
 		}
 
 		switch r.Method {
 		case "POST":
-			if _, err = pinset.Pin(req); err != nil {
+			statusChan, err := ps.Pin(req)
+			if err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
 				return
 			}
+			status = <-statusChan
+			apiutil.WriteResponse(w, status)
+			return
 		case "DELETE":
-			if err = pinset.Unpin(req); err != nil {
+			if err = ps.Unpin(req); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
-				return
 			}
 		case "GET":
-			if req.Pinned, err = pinset.Pinned(req.Path); err != nil {
+			p := apiutil.PageFromRequest(r)
+			pins, err := ps.Pins(p.Limit(), p.Offset())
+			if err != nil {
 				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
 				return
 			}
+			apiutil.WriteResponse(w, pins)
+		default:
+			apiutil.NotFoundHandler(w, r)
+		}
+	}
+}
+
+// NewPinStatusHandler creates a handler for getting the pin status of a hash
+func NewPinStatusHandler(ps pinset.Pinset) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		req, err := parsePinReq(r)
+		if err != nil {
+			apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+			return
 		}
 
-		apiutil.WriteResponse(w, req)
+		status, err := ps.Status(req)
+		if err != nil {
+			if err.Error() == "not found" {
+				apiutil.WriteErrResponse(w, http.StatusNotFound, err)
+			} else {
+				apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
+			}
+			return
+		}
+
+		apiutil.WriteResponse(w, status)
 	}
+}
+
+func parsePinReq(r *http.Request) (req *pinset.PinRequest, err error) {
+	req = &pinset.PinRequest{}
+
+	switch r.Header.Get("Content-Type") {
+	case "application/json":
+		err = json.NewDecoder(r.Body).Decode(req)
+	default:
+		req.Path = r.FormValue("path")
+	}
+
+	return
 }

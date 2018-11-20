@@ -5,48 +5,76 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 )
 
-// GetPinned checks if a given path is pinned to this registry
-func (c Client) GetPinned(path string) (bool, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/pins?path=%s", c.cfg.Location, path), nil)
+// Status checks if a given path is pinned to this registry
+func (c Client) Status(path string) (s pinset.PinStatus, err error) {
+	var (
+		req *http.Request
+		res *http.Response
+	)
+
+	req, err = http.NewRequest("GET", fmt.Sprintf("%s/pins/status?path=%s", c.cfg.Location, path), nil)
 	if err != nil {
-		return false, err
+		return
 	}
 
-	res, err := c.httpClient.Do(req)
+	res, err = c.httpClient.Do(req)
 	if err != nil {
-		return false, err
+		return
 	}
 
 	rs := struct {
-		Data struct {
-			Pinned bool
-		}
+		Data pinset.PinStatus
 	}{}
-	if err := json.NewDecoder(res.Body).Decode(&rs); err != nil {
-		return false, err
+	if err = json.NewDecoder(res.Body).Decode(&rs); err != nil {
+		return
 	}
 
-	return rs.Data.Pinned, nil
+	return rs.Data, nil
 }
 
 // Pin requests a dataset be replicated on the registry
 func (c Client) Pin(path string, privKey crypto.PrivKey, addrs []string) error {
-	req, err := registry.NewPinRequest(path, privKey, addrs)
+	req, err := pinset.NewPinRequest(path, privKey, addrs)
 	if err != nil {
 		return err
 	}
-	_, err = c.doJSONPinReq("POST", req)
-	return err
+	status, err := c.doJSONPinReq("POST", req)
+	if err != nil {
+		return err
+	}
+
+	if status.Pinned {
+		return nil
+	} else if status.Error != "" {
+		return fmt.Errorf(status.Error)
+	}
+
+	// poll, checking for pinned == true
+	updates, done := c.statusPoll(path, stdPollInterval)
+	defer done()
+
+	for status := range updates {
+		if status.Pinned {
+			return nil
+		} else if status.Error != "" {
+			return fmt.Errorf(status.Error)
+		}
+	}
+
+	return nil
 }
 
 // Unpin requests a dataset not be replicated to the registry
 func (c Client) Unpin(path string, privKey crypto.PrivKey) error {
-	req, err := registry.NewPinRequest(path, privKey, nil)
+	req, err := pinset.NewPinRequest(path, privKey, nil)
 	if err != nil {
 		return err
 	}
@@ -54,8 +82,8 @@ func (c Client) Unpin(path string, privKey crypto.PrivKey) error {
 	return nil
 }
 
-// doJSONProfileReq is a common wrapper for /profile endpoint requests
-func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.PinRequest, error) {
+// doJSONPinReq is a common wrapper for /pin endpoint requests
+func (c Client) doJSONPinReq(method string, pr *pinset.PinRequest) (*pinset.PinStatus, error) {
 	if c.cfg.Location == "" {
 		return nil, ErrNoRegistry
 	}
@@ -73,6 +101,9 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.httpClient.Do(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "no such host") {
+			return nil, ErrNoRegistry
+		}
 		return nil, err
 	}
 
@@ -82,7 +113,7 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 
 	// add response to an envelope
 	env := struct {
-		Data *registry.PinRequest
+		Data *pinset.PinStatus
 		Meta struct {
 			Error  string
 			Status string
@@ -97,5 +128,32 @@ func (c Client) doJSONPinReq(method string, pr *registry.PinRequest) (*registry.
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("error %d: %s", res.StatusCode, env.Meta.Error)
 	}
+	if env.Data == nil {
+		return &pinset.PinStatus{}, nil
+	}
+
 	return env.Data, nil
+}
+
+const stdPollInterval = time.Duration(time.Second)
+
+func (c Client) statusPoll(path string, interval time.Duration) (updates chan pinset.PinStatus, done func()) {
+	tick := time.NewTicker(interval)
+	updates = make(chan pinset.PinStatus)
+	done = func() {
+		tick.Stop()
+		close(updates)
+	}
+
+	go func() {
+		for range tick.C {
+			status, err := c.Status(path)
+			if err != nil {
+				status.Error = err.Error()
+			}
+			updates <- status
+		}
+	}()
+
+	return updates, done
 }

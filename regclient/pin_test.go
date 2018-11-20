@@ -5,18 +5,18 @@ import (
 	"testing"
 
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
 func TestPinRequests(t *testing.T) {
 	ps := registry.NewMemProfiles()
-	pins := &registry.MemPinset{Profiles: ps}
+	pins := &pinset.MemPinset{Profiles: ps}
 	reg := registry.Registry{
 		Profiles: ps,
 		Datasets: registry.NewMemDatasets(),
-		Pinset:   pins,
 	}
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	ts := httptest.NewServer(handlers.NewRoutesPinset(handlers.NewNoopProtector(), reg, pins))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})
@@ -27,12 +27,12 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	path := "/foo"
-	pinned, err := c.GetPinned(path)
+	path := "foo"
+	status, err := c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if pinned != false {
+	if status.Pinned != false {
 		t.Errorf("expected pinned '%s' to equal false", path)
 	}
 
@@ -40,11 +40,11 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	pinned, err = c.GetPinned(path)
+	status, err = c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if !pinned {
+	if !status.Pinned {
 		t.Errorf("expected pinned '%s' to equal true", path)
 	}
 
@@ -52,11 +52,11 @@ func TestPinRequests(t *testing.T) {
 		t.Error(err.Error())
 	}
 
-	pinned, err = c.GetPinned(path)
+	status, err = c.Status(path)
 	if err != nil {
 		t.Error(err.Error())
 	}
-	if pinned != false {
+	if status.Pinned != false {
 		t.Errorf("expected pinned '%s' to equal false", path)
 	}
 }

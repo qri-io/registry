@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/registry"
@@ -58,6 +59,9 @@ func (c Client) doJSONProfileReq(method string, p *registry.Profile) (*registry.
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.httpClient.Do(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "no such host") {
+			return nil, ErrNoRegistry
+		}
 		return nil, err
 	}
 

@@ -6,14 +6,17 @@ import (
 	"net/http/httptest"
 
 	"github.com/qri-io/registry"
+	"github.com/qri-io/registry/pinset"
 	"github.com/qri-io/registry/regclient"
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
-// NewMockServer creates an in-memory mock server without any access protection and
+// NewMockServer creates an in-memory mock server (with a pinset) without any access protection and
 // a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
-	return NewMockServerRegistry(NewMemRegistry())
+	reg := NewMemRegistry()
+	ps := &pinset.MemPinset{Profiles: reg.Profiles}
+	return NewMockServerRegistryPinset(reg, ps)
 }
 
 // NewMockServerRegistry creates a mock server & client with a passed-in registry
@@ -23,23 +26,17 @@ func NewMockServerRegistry(reg registry.Registry) (*regclient.Client, *httptest.
 	return c, s
 }
 
+// NewMockServerRegistryPinset creates a mock server & client with a passed-in registry and pinset
+func NewMockServerRegistryPinset(reg registry.Registry, ps pinset.Pinset) (*regclient.Client, *httptest.Server) {
+	s := httptest.NewServer(handlers.NewRoutesPinset(handlers.NewNoopProtector(), reg, ps))
+	c := regclient.NewClient(&regclient.Config{Location: s.URL})
+	return c, s
+}
+
 // NewMemRegistry creates a new in-memory registry
 func NewMemRegistry() registry.Registry {
 	return registry.Registry{
 		Profiles: registry.NewMemProfiles(),
 		Datasets: registry.NewMemDatasets(),
-	}
-}
-
-// NewMemRegistryPinset creates an in-memory registry without any access protection,
-// a registry client, and an in-memory pinset
-func NewMemRegistryPinset() registry.Registry {
-	prof := registry.NewMemProfiles()
-	ds := registry.NewMemDatasets()
-	return registry.Registry{
-		Profiles: prof,
-		Datasets: ds,
-		Pinset:   &registry.MemPinset{Profiles: prof},
-		Search:   registry.MockSearch{Datasets: ds},
 	}
 }

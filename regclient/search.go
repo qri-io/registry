@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/qri-io/registry"
 )
@@ -97,6 +98,9 @@ func (c Client) doJSONSearchReq(method string, s *registry.SearchParams) (result
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
+		if strings.Contains(err.Error(), "no such host") {
+			return nil, ErrNoRegistry
+		}
 		return nil, err
 	}
 	// add response to an envelope
