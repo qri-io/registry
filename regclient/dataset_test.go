@@ -52,8 +52,27 @@ func TestDatasetRequests(t *testing.T) {
 		t.Error(err)
 	}
 
+	datasets, err := c.ListDatasets(0, 0)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if len(datasets) != 1 {
+		t.Errorf("expected 1 dataset1, got %d", len(datasets))
+	}
+
 	err = c.DeleteDataset(handle, name, ds, pk1.GetPublic())
 	if err != nil {
 		t.Error(err.Error())
 	}
+
+	datasets, err = c.ListDatasets(0, 0)
+	if err != nil {
+		t.Error(err.Error())
+	}
+
+	if len(datasets) != 0 {
+		t.Errorf("expected 0 datasets, got %d", len(datasets))
+	}
+
 }
