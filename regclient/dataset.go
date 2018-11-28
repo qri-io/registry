@@ -14,7 +14,7 @@ import (
 )
 
 // GetDataset fetches a dataset from a registry
-func (c Client) GetDataset(peername, dsname, profileID, hash string) (*dataset.DatasetPod, error) {
+func (c Client) GetDataset(peername, dsname, profileID, hash string) (*registry.Dataset, error) {
 	ref := ns.Ref{
 		Peername:  peername,
 		Name:      dsname,
@@ -22,11 +22,7 @@ func (c Client) GetDataset(peername, dsname, profileID, hash string) (*dataset.D
 		Path:      hash,
 	}
 
-	ds, err := c.doDatasetReq("GET", ref)
-	if err != nil {
-		return nil, err
-	}
-	return &ds.DatasetPod, nil
+	return c.doDatasetReq("GET", ref)
 }
 
 // PutDataset adds a dataset to a registry
