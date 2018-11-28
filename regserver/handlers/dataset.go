@@ -39,37 +39,24 @@ func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 			}
 			fallthrough
 		case "GET":
-			var limit, offset int
-			if i, err := apiutil.ReqParamInt("limit", r); err == nil {
-				limit = i
-			}
-			if i, err := apiutil.ReqParamInt("offset", r); err == nil {
-				offset = i
-			}
-			if offset < 0 {
-				offset = 0
-			}
-			if limit <= 0 {
-				limit = DefaultLimit
-			}
+			p := apiutil.PageFromRequest(r)
+			offset := p.Offset()
+			limit := p.Limit()
+			ds := make([]*registry.Dataset, 0, limit)
 
-			ps := make([]*registry.Dataset, limit)
-
-			i := 0
-
-			datasets.SortedRange(func(key string, p *registry.Dataset) bool {
-				if i < offset {
-					i++
+			datasets.SortedRange(func(key string, d *registry.Dataset) bool {
+				if offset > 0 {
+					offset--
 					return false
 				}
-				if i-offset == limit {
+				if len(ds) == limit {
 					return true
 				}
-				ps[i] = p
-				i++
+				ds = append(ds, d)
 				return false
 			})
-			apiutil.WriteResponse(w, ps[:datasets.Len()-offset])
+
+			apiutil.WriteResponse(w, ds)
 		}
 	}
 }
