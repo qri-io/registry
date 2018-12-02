@@ -3,10 +3,7 @@ jobs:
   build:
     working_directory: /go/src/github.com/qri-io/registry
     docker:
-      - image: circleci/golang:1.10.1
-        environment:
-          GOLANG_ENV: test
-          PORT: 3000
+      - image: circleci/golang:1.11.1
     environment:
       TEST_RESULTS: /tmp/test-results
     steps:
@@ -18,9 +15,24 @@ jobs:
       - run: 
           name: Run Lint Tests
           command: golint -set_exit_status ./...
-      - run: 
-          name: install deps
+      - run:
+          name: Install non-gx deps
           command: make install-deps
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install gx
+          command: make install-gx
+      - run:
+          name: Install gx deps
+          command: gx install
+      - run:
+          name: Install gx-dependant packages
+          command: make install-gx-dep-packages
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - /go/src/gx/
       - run:
           name: Run Tests
           command: |
