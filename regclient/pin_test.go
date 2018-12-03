@@ -16,7 +16,7 @@ func TestPinRequests(t *testing.T) {
 		Profiles: ps,
 		Datasets: registry.NewMemDatasets(),
 	}
-	ts := httptest.NewServer(handlers.NewRoutesPinset(handlers.NewNoopProtector(), reg, pins))
+	ts := httptest.NewServer(handlers.NewRoutes(reg, handlers.AddPinset(pins)))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

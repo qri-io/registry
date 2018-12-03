@@ -17,7 +17,7 @@ func TestSearchRequests(t *testing.T) {
 		Search:   registry.MockSearch{memDs},
 	}
 
-	srv := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	srv := httptest.NewServer(handlers.NewRoutes(reg))
 	c := NewClient(&Config{
 		Location: srv.URL,
 	})

@@ -40,7 +40,7 @@ func main() {
 
 	s := http.Server{
 		Addr:    ":" + port,
-		Handler: handlers.NewRoutesPinset(pro, reg, pset),
+		Handler: handlers.NewRoutes(reg, handlers.AddPinset(pset), handlers.AddProtector(pro)),
 	}
 
 	log.Infof("serving on: %s", s.Addr)

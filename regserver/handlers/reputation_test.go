@@ -37,7 +37,7 @@ func TestReputation(t *testing.T) {
 		return
 	}
 
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), registry.Registry{Reputations: memReps}))
+	s := httptest.NewServer(NewRoutes(registry.Registry{Reputations: memReps}))
 
 	type env struct {
 		Data *registry.ReputationResponse
