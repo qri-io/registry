@@ -21,14 +21,14 @@ func NewMockServer() (*regclient.Client, *httptest.Server) {
 
 // NewMockServerRegistry creates a mock server & client with a passed-in registry
 func NewMockServerRegistry(reg registry.Registry) (*regclient.Client, *httptest.Server) {
-	s := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	s := httptest.NewServer(handlers.NewRoutes(reg))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
 	return c, s
 }
 
 // NewMockServerRegistryPinset creates a mock server & client with a passed-in registry and pinset
 func NewMockServerRegistryPinset(reg registry.Registry, ps pinset.Pinset) (*regclient.Client, *httptest.Server) {
-	s := httptest.NewServer(handlers.NewRoutesPinset(handlers.NewNoopProtector(), reg, ps))
+	s := httptest.NewServer(handlers.NewRoutes(reg, handlers.AddPinset(ps)))
 	c := regclient.NewClient(&regclient.Config{Location: s.URL})
 	return c, s
 }

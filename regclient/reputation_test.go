@@ -23,7 +23,7 @@ func TestReputationRequests(t *testing.T) {
 	reg := registry.Registry{
 		Reputations: memRs,
 	}
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	ts := httptest.NewServer(handlers.NewRoutes(reg))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

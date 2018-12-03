@@ -18,7 +18,7 @@ func TestSearch(t *testing.T) {
 		Datasets: registry.NewMemDatasets(),
 		Search:   nilSearch,
 	}
-	s := httptest.NewServer(NewRoutes(NewNoopProtector(), reg))
+	s := httptest.NewServer(NewRoutes(reg))
 
 	cases := []struct {
 		method      string

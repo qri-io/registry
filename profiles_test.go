@@ -111,11 +111,9 @@ func TestProfilesSortedRange(t *testing.T) {
 
 	for iter := 0; iter < 100; iter++ {
 		i := 0
-		failed := false
 		ps.SortedRange(func(key string, p *Profile) bool {
 			if handles[i] != p.Handle {
 				t.Errorf("iter: %d sorted index %d mismatch. expected: %s, got: %s", iter, i, handles[i], p.Handle)
-				failed = true
 				return true
 			}
 			i++

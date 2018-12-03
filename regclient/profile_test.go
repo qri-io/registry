@@ -40,7 +40,7 @@ func TestProfileRequests(t *testing.T) {
 		Datasets: memDs,
 		Search:   &registry.MockSearch{memDs},
 	}
-	ts := httptest.NewServer(handlers.NewRoutes(handlers.NewNoopProtector(), reg))
+	ts := httptest.NewServer(handlers.NewRoutes(reg))
 	c := NewClient(&Config{
 		Location: ts.URL,
 	})

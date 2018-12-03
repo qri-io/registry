@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/qri-io/dag/dsync"
 	"github.com/qri-io/registry"
 	"github.com/qri-io/registry/pinset"
 	"github.com/sirupsen/logrus"
@@ -14,8 +15,44 @@ var (
 	log = logrus.New()
 )
 
+// RouteOptions defines configuration details for NewRoutes
+type RouteOptions struct {
+	Protector MethodProtector
+	Pinset    pinset.Pinset
+	Dsync     *dsync.Receivers
+}
+
+// AddPinset creates a configuration func for passing to NewRoutes
+func AddPinset(ps pinset.Pinset) func(o *RouteOptions) {
+	return func(o *RouteOptions) {
+		o.Pinset = ps
+	}
+}
+
+// AddDsyncReceivers creates a configuration func for passing to NewRoutes
+func AddDsyncReceivers(rec *dsync.Receivers) func(o *RouteOptions) {
+	return func(o *RouteOptions) {
+		o.Dsync = rec
+	}
+}
+
+// AddProtector creates a configuration func for passing to NewRoutes
+func AddProtector(p MethodProtector) func(o *RouteOptions) {
+	return func(o *RouteOptions) {
+		o.Protector = p
+	}
+}
+
 // NewRoutes allocates server handlers along standard routes
-func NewRoutes(pro MethodProtector, reg registry.Registry) *http.ServeMux {
+func NewRoutes(reg registry.Registry, opts ...func(o *RouteOptions)) *http.ServeMux {
+	o := &RouteOptions{
+		Protector: NoopProtector(0),
+	}
+	for _, opt := range opts {
+		opt(o)
+	}
+
+	pro := o.Protector
 	m := http.NewServeMux()
 	m.HandleFunc("/", HealthCheckHandler)
 
@@ -34,16 +71,15 @@ func NewRoutes(pro MethodProtector, reg registry.Registry) *http.ServeMux {
 	if rs := reg.Reputations; rs != nil {
 		m.HandleFunc("/reputation", (logReq(NewReputationHandler(rs))))
 	}
-	return m
-}
 
-// NewRoutesPinset adds standard routes and pinset routes
-func NewRoutesPinset(pro MethodProtector, reg registry.Registry, ps pinset.Pinset) *http.ServeMux {
-	m := NewRoutes(pro, reg)
-	if ps != nil {
-		m.HandleFunc("/pins", logReq(NewPinsHandler(ps)))
-		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(ps)))
+	if o.Pinset != nil {
+		m.HandleFunc("/pins", logReq(NewPinsHandler(o.Pinset)))
+		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(o.Pinset)))
 	}
+	if o.Dsync != nil {
+		m.HandleFunc("/dsync", logReq(o.Dsync.HTTPHandler()))
+	}
+
 	return m
 }
 
