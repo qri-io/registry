@@ -11,6 +11,14 @@ type Searchable interface {
 	Search(p SearchParams) ([]Result, error)
 }
 
+// Indexer is an interface for adding registry values to a search index
+type Indexer interface {
+	// IndexDatasets adds one or more datasets to a search index
+	IndexDatasets([]*Dataset) error
+	// UnindexDatasets removes one or more datasets from a search index
+	UnindexDatasets([]*Dataset) error
+}
+
 // SearchParams encapsulates parameters provided to Searchable.Search
 type SearchParams struct {
 	Q             string

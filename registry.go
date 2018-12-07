@@ -30,6 +30,7 @@ type Registry struct {
 	Datasets    Datasets
 	Reputations Reputations
 	Search      Searchable
+	Indexer     Indexer
 }
 
 // ErrPinsetNotSupported is a cannonical error for a repository that does not

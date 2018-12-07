@@ -17,7 +17,7 @@ const DefaultLimit = 25
 
 // NewDatasetsHandler creates a datasets handler function that operates
 // on a *registry.Datasets
-func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
+func NewDatasetsHandler(datasets registry.Datasets, idxr registry.Indexer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "POST":
@@ -37,6 +37,15 @@ func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 			for _, pro := range ps {
 				datasets.Store(pro.Handle, pro)
 			}
+
+			// add datasets to search index if it's defined
+			if idxr != nil {
+				if err := idxr.IndexDatasets(ps); err != nil {
+					apiutil.WriteErrResponse(w, http.StatusInternalServerError, err)
+					return
+				}
+			}
+
 			fallthrough
 		case "GET":
 			p := apiutil.PageFromRequest(r)
@@ -63,7 +72,7 @@ func NewDatasetsHandler(datasets registry.Datasets) http.HandlerFunc {
 
 // NewDatasetHandler creates a dataset handler func that operats on
 // a *registry.Datasets
-func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
+func NewDatasetHandler(datasets registry.Datasets, idxr registry.Indexer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		p := &registry.Dataset{}
 		switch r.Header.Get("Content-Type") {
@@ -119,10 +128,22 @@ func NewDatasetHandler(datasets registry.Datasets) http.HandlerFunc {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
 			}
+			if idxr != nil {
+				if err := idxr.IndexDatasets([]*registry.Dataset{p}); err != nil {
+					apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+					return
+				}
+			}
 		case "DELETE":
 			if err := registry.DeregisterDataset(datasets, p); err != nil {
 				apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
 				return
+			}
+			if idxr != nil {
+				if err := idxr.UnindexDatasets([]*registry.Dataset{p}); err != nil {
+					apiutil.WriteErrResponse(w, http.StatusBadRequest, err)
+					return
+				}
 			}
 		default:
 			apiutil.NotFoundHandler(w, r)

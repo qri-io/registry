@@ -1,3 +1,4 @@
+// Package handlers creates HTTP handler functions for registry interface implementations
 package handlers
 
 import (
@@ -60,11 +61,13 @@ func NewRoutes(reg registry.Registry, opts ...func(o *RouteOptions)) *http.Serve
 		m.HandleFunc("/profile", logReq(NewProfileHandler(ps)))
 		m.HandleFunc("/profiles", pro.ProtectMethods("POST")(logReq(NewProfilesHandler(ps))))
 	}
+
 	if ds := reg.Datasets; ds != nil {
-		m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds)))
-		m.HandleFunc("/dataset/", logReq(NewDatasetHandler(ds)))
-		m.HandleFunc("/datasets", pro.ProtectMethods("POST")(logReq(NewDatasetsHandler(ds))))
+		m.HandleFunc("/dataset", logReq(NewDatasetHandler(ds, reg.Indexer)))
+		m.HandleFunc("/dataset/", logReq(NewDatasetHandler(ds, reg.Indexer)))
+		m.HandleFunc("/datasets", pro.ProtectMethods("POST")(logReq(NewDatasetsHandler(ds, reg.Indexer))))
 	}
+
 	if s := reg.Search; s != nil {
 		m.HandleFunc("/search", logReq(NewSearchHandler(s)))
 	}
