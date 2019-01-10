@@ -140,18 +140,25 @@ const stdPollInterval = time.Duration(time.Second)
 func (c Client) statusPoll(path string, interval time.Duration) (updates chan pinset.PinStatus, done func()) {
 	tick := time.NewTicker(interval)
 	updates = make(chan pinset.PinStatus)
+	stopTick := make(chan bool)
 	done = func() {
 		tick.Stop()
+		stopTick <- true
 		close(updates)
 	}
 
 	go func() {
-		for range tick.C {
-			status, err := c.Status(path)
-			if err != nil {
-				status.Error = err.Error()
+		for {
+			select {
+			case <-stopTick:
+				return
+			case <-tick.C:
+				status, err := c.Status(path)
+				if err != nil {
+					status.Error = err.Error()
+				}
+				updates <- status
 			}
-			updates <- status
 		}
 	}()
 
