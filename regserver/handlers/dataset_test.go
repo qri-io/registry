@@ -31,7 +31,7 @@ func TestDataset(t *testing.T) {
 		t.Errorf("error reading dataset file: %s", err.Error())
 		return
 	}
-	cds := &dataset.DatasetPod{}
+	cds := &dataset.Dataset{}
 	if err := json.Unmarshal(data, cds); err != nil {
 		t.Errorf("error unmarshaling dataset json: %s", err.Error())
 		return
@@ -82,8 +82,8 @@ func TestDataset(t *testing.T) {
 			ref := ns.Ref{
 				Peername:  c.dataset.Handle,
 				Name:      c.dataset.Name,
-				Path:      c.dataset.Path,
-				ProfileID: c.dataset.ProfileID,
+				Path:      c.dataset.Dataset.Path,
+				ProfileID: c.dataset.Dataset.ProfileID,
 			}
 			path += fmt.Sprintf("/%s", strings.Replace(ref.String(), "@", "at", 1))
 		}
@@ -109,6 +109,14 @@ func TestDataset(t *testing.T) {
 		res, err := http.DefaultClient.Do(req)
 		if res.StatusCode != c.resStatus {
 			t.Errorf("case %d res status mismatch. expected: %d, got: %d, path: %s", i, c.resStatus, res.StatusCode, path)
+			jd := struct {
+				Meta struct {
+					Code  int
+					Error string
+				}
+			}{}
+			json.NewDecoder(res.Body).Decode(&jd)
+			t.Errorf("case %d json error: %s", i, jd.Meta.Error)
 			continue
 		}
 

@@ -26,7 +26,7 @@ func (c Client) GetDataset(peername, dsname, profileID, hash string) (*registry.
 }
 
 // PutDataset adds a dataset to a registry
-func (c Client) PutDataset(peername, dsname string, ds *dataset.DatasetPod, pubKey crypto.PubKey) error {
+func (c Client) PutDataset(peername, dsname string, ds *dataset.Dataset, pubKey crypto.PubKey) error {
 	d, err := registry.NewDataset(peername, dsname, ds, pubKey)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func (c Client) PutDataset(peername, dsname string, ds *dataset.DatasetPod, pubK
 }
 
 // DeleteDataset removes a dataset from the registry
-func (c Client) DeleteDataset(peername, dsname string, ds *dataset.DatasetPod, pubKey crypto.PubKey) error {
+func (c Client) DeleteDataset(peername, dsname string, ds *dataset.Dataset, pubKey crypto.PubKey) error {
 	d, err := registry.NewDataset(peername, dsname, ds, pubKey)
 	if err != nil {
 		return err

@@ -57,8 +57,8 @@ type MockSearch struct {
 func (ms MockSearch) Search(p SearchParams) (results []Result, err error) {
 	ms.Datasets.Range(func(key string, ds *Dataset) bool {
 		dsname := ""
-		if ds.Meta != nil {
-			dsname = strings.ToLower(ds.Meta.Title)
+		if ds.Dataset.Meta != nil {
+			dsname = strings.ToLower(ds.Dataset.Meta.Title)
 		}
 		if strings.Contains(dsname, strings.ToLower(p.Q)) {
 			result := &Result{Value: ds}

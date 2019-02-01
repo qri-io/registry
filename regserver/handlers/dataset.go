@@ -111,7 +111,8 @@ func NewDatasetHandler(datasets registry.Datasets, idxr registry.Indexer) http.H
 
 			var ok bool
 			datasets.Range(func(key string, dataset *registry.Dataset) bool {
-				if dataset.Path == ref.Path || (ref.Name == dataset.Name && ref.Peername == dataset.Handle) {
+				ds := dataset.Dataset
+				if ds.Path == ref.Path || (ref.Name == dataset.Name && ref.Peername == dataset.Handle) {
 					*p = *dataset
 					ok = true
 					return true
