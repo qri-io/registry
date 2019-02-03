@@ -11,33 +11,42 @@ import (
 
 // Dataset is a registry's version of a dataset
 type Dataset struct {
-	dataset.DatasetPod
+	// Dataset   dataset.Dataset
+	Commit    *dataset.Commit    `json:"commit,omitempty"`
+	Meta      *dataset.Meta      `json:"meta,omitempty"`
+	Path      string             `json:"path,omitempty"`
+	Structure *dataset.Structure `json:"structure,omitempty"`
+	ProfileID string             `json:"profileID,omitempty"`
+
 	Handle    string `json:",omitempty"`
 	Name      string `json:",omitempty"`
 	PublicKey string `json:",omitempty"`
 }
 
 // NewDataset creates a new dataset instance
-func NewDataset(handle, name string, cds *dataset.DatasetPod, pubkey crypto.PubKey) (*Dataset, error) {
+func NewDataset(handle, name string, ds *dataset.Dataset, pubkey crypto.PubKey) (*Dataset, error) {
 	pubb, err := pubkey.Bytes()
 	if err != nil {
 		return nil, err
 	}
 
 	return &Dataset{
-		DatasetPod: *cds,
-		PublicKey:  base64.StdEncoding.EncodeToString(pubb),
-		Name:       name,
-		Handle:     handle,
+		// Dataset:   *ds,
+		Commit:    ds.Commit,
+		Meta:      ds.Meta,
+		Path:      ds.Path,
+		Structure: ds.Structure,
+
+		PublicKey: base64.StdEncoding.EncodeToString(pubb),
+		Name:      name,
+		Handle:    handle,
 	}, nil
 }
 
 // NewDatasetRef creates a dataset with any known reference detail strings
 func NewDatasetRef(peername, name, profileID, path string) *Dataset {
 	return &Dataset{
-		DatasetPod: dataset.DatasetPod{
-			Path: path,
-		},
+		Path:   path,
 		Handle: peername,
 		Name:   name,
 	}

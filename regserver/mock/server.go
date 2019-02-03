@@ -11,6 +11,11 @@ import (
 	"github.com/qri-io/registry/regserver/handlers"
 )
 
+func init() {
+	// don't need verbose logging when working with mock servers
+	handlers.SetLogLevel("error")
+}
+
 // NewMockServer creates an in-memory mock server (with a pinset) without any access protection and
 // a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
