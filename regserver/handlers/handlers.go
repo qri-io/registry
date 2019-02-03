@@ -16,6 +16,16 @@ var (
 	log = logrus.New()
 )
 
+// SetLogLevel controls how detailed handler logging is
+func SetLogLevel(level string) error {
+	lvl, err := logrus.ParseLevel(level)
+	if err != nil {
+		return err
+	}
+	log.SetLevel(lvl)
+	return nil
+}
+
 // RouteOptions defines configuration details for NewRoutes
 type RouteOptions struct {
 	Protector MethodProtector

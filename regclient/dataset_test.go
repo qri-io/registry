@@ -31,13 +31,13 @@ func TestDatasetRequests(t *testing.T) {
 		return
 	}
 
-	ds := &dataset.DatasetPod{
+	ds := &dataset.Dataset{
 		Path: "/map/QmYXMg6gqMAT8seUFhgAagknFvfs71auFWbnSfVcg1NTd8",
-		Commit: &dataset.CommitPod{
+		Commit: &dataset.Commit{
 			Timestamp: ts,
 			Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 		},
-		Structure: &dataset.StructurePod{
+		Structure: &dataset.Structure{
 			Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 		},
 	}

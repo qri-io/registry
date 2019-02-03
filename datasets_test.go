@@ -2,7 +2,6 @@ package registry
 
 import (
 	"encoding/base64"
-	// "math/rand"
 	"testing"
 	"time"
 
@@ -49,13 +48,13 @@ func TestRegisterDataset(t *testing.T) {
 	// 	return
 	// }
 
-	ds1, err := NewDataset("foo", "bar", &dataset.DatasetPod{
+	ds1, err := NewDataset("foo", "bar", &dataset.Dataset{
 		Path: "foo",
-		Commit: &dataset.CommitPod{
+		Commit: &dataset.Commit{
 			Timestamp: ts,
 			Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 		},
-		Structure: &dataset.StructurePod{
+		Structure: &dataset.Structure{
 			Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 		},
 	}, pk.GetPublic())
@@ -65,37 +64,37 @@ func TestRegisterDataset(t *testing.T) {
 	}
 
 	cases := []struct {
-		ds                dataset.DatasetPod
+		ds                dataset.Dataset
 		name, handle, err string
 	}{
-		{dataset.DatasetPod{}, "foo", "bar", "path is required"},
-		{dataset.DatasetPod{
+		{dataset.Dataset{}, "foo", "bar", "path is required"},
+		{dataset.Dataset{
 			Path: "QmFooPath",
-			Commit: &dataset.CommitPod{
+			Commit: &dataset.Commit{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.StructurePod{
+			Structure: &dataset.Structure{
 				Checksum: "bad",
 			},
 		}, "foo", "bar", "invalid signature: crypto/rsa: verification error"},
-		{dataset.DatasetPod{
+		{dataset.Dataset{
 			Path: "QmFooPath",
-			Commit: &dataset.CommitPod{
+			Commit: &dataset.Commit{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.StructurePod{
+			Structure: &dataset.Structure{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, "foo", "bar", ""},
-		{dataset.DatasetPod{
+		{dataset.Dataset{
 			Path: "QmFooPath2",
-			Commit: &dataset.CommitPod{
+			Commit: &dataset.Commit{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.StructurePod{
+			Structure: &dataset.Structure{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, "foo", "bar", ""},
@@ -152,13 +151,13 @@ func TestDatasetsSortedRange(t *testing.T) {
 
 	handles := map[string]string{"a": "foo", "b": "bar"}
 	for handle, name := range handles {
-		p, err := NewDataset(handle, name, &dataset.DatasetPod{
+		p, err := NewDataset(handle, name, &dataset.Dataset{
 			Path: "foo",
-			Commit: &dataset.CommitPod{
+			Commit: &dataset.Commit{
 				Timestamp: ts,
 				Signature: "RZU/18bxxacveMoNvGxINIS9MxvNwtc4OiSCRjCGnospztHNhJfJP0PflrzKG1tqLGi+c4w94BJRmLR/I5YaVqqwm86vGkYhwDRuBEViuT4GlKCzVEFUk63fJsT9YmcUWlabqEnUW2l0O6p+RatfmumlKOleONMYy1woa5PbIzRGoITo4u9piYiV6RVRJ9bURjEU7cr8iVXcwO+YEw6qMCUBKUAok+yttjt+iYm0JLD9hPoQO14Vu4jWMFxByoLvVIEquEqnlgyuQGvelFfuApUI5goTftOcASANuTsnrOe6gq0HJxNN27kAYQujS3swspi7qVrL9X8v341YKu77fQ==",
 			},
-			Structure: &dataset.StructurePod{
+			Structure: &dataset.Structure{
 				Checksum: "QmcCcPTqmckdXLBwPQXxfyW2BbFcUT6gqv9oGeWDkrNTyD",
 			},
 		}, pk.GetPublic())

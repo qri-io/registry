@@ -82,8 +82,8 @@ func TestDataset(t *testing.T) {
 			ref := ns.Ref{
 				Peername:  c.dataset.Handle,
 				Name:      c.dataset.Name,
-				Path:      c.dataset.Dataset.Path,
-				ProfileID: c.dataset.Dataset.ProfileID,
+				Path:      c.dataset.Path,
+				ProfileID: c.dataset.ProfileID,
 			}
 			path += fmt.Sprintf("/%s", strings.Replace(ref.String(), "@", "at", 1))
 		}
