@@ -58,17 +58,15 @@ func (c Client) Pin(path string, privKey crypto.PrivKey, addrs []string) error {
 	}
 
 	// poll, checking for pinned == true
-	updates, done := c.statusPoll(path, stdPollInterval)
-	defer done()
+	updates := c.statusPoll(path, stdPollInterval)
 
 	for status := range updates {
 		if status.Pinned {
-			return nil
+			break
 		} else if status.Error != "" {
 			return fmt.Errorf(status.Error)
 		}
 	}
-
 	return nil
 }
 
@@ -137,11 +135,11 @@ func (c Client) doJSONPinReq(method string, pr *pinset.PinRequest) (*pinset.PinS
 
 const stdPollInterval = time.Duration(time.Second)
 
-func (c Client) statusPoll(path string, interval time.Duration) (updates chan pinset.PinStatus, done func()) {
+func (c Client) statusPoll(path string, interval time.Duration) (updates chan pinset.PinStatus) {
 	tick := time.NewTicker(interval)
 	updates = make(chan pinset.PinStatus)
 	stopTick := make(chan bool)
-	done = func() {
+	done := func() {
 		tick.Stop()
 		stopTick <- true
 		close(updates)
@@ -156,11 +154,15 @@ func (c Client) statusPoll(path string, interval time.Duration) (updates chan pi
 				status, err := c.Status(path)
 				if err != nil {
 					status.Error = err.Error()
+					go done()
 				}
 				updates <- status
+				if status.Pinned {
+					go done()
+				}
 			}
 		}
 	}()
 
-	return updates, done
+	return updates
 }
