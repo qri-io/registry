@@ -3,6 +3,8 @@
 package mock
 
 import (
+	"fmt"
+
 	"net/http/httptest"
 
 	"github.com/qri-io/registry"
@@ -19,7 +21,21 @@ func init() {
 // NewMockServer creates an in-memory mock server (with a pinset) without any access protection and
 // a registry client to match
 func NewMockServer() (*regclient.Client, *httptest.Server) {
+	return NewMockServerWithNumDatasets(0)
+}
+
+// NewMockServerWithNumDatasets creates an in-memory mock server containing num datasets
+func NewMockServerWithNumDatasets(num int) (*regclient.Client, *httptest.Server) {
 	reg := NewMemRegistry()
+	for i := 0; i < num; i++ {
+		name := fmt.Sprintf("ds_%d", i)
+		ds := &registry.Dataset{
+			Path:   fmt.Sprintf("QmAbC%d", i),
+			Name:   name,
+			Handle: "peer",
+		}
+		reg.Datasets.Store(name, ds)
+	}
 	ps := &pinset.MemPinset{Profiles: reg.Profiles}
 	return NewMockServerRegistryPinset(reg, ps)
 }
