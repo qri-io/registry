@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	util "github.com/datatogether/api/apiutil"
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/dataset"
 	"github.com/qri-io/registry"
@@ -53,7 +54,9 @@ func (c Client) ListDatasets(limit, offset int) ([]*registry.Dataset, error) {
 		return nil, ErrNoRegistry
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/datasets?limit=%d&offset=%d", c.cfg.Location, limit, offset), nil)
+	page := util.NewPageFromOffsetAndLimit(offset, limit)
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/datasets?page=%d&pageSize=%d", c.cfg.Location, page.Number, page.Size), nil)
 	if err != nil {
 		return nil, err
 	}
