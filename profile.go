@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jbenet/go-multihash"
 	"github.com/libp2p/go-libp2p-crypto"
+	"github.com/multiformats/go-multihash"
 )
 
 // Profile is a shorthand version of qri-io/qri/repo/profile.Profile
