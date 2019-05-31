@@ -28,7 +28,6 @@ func init() {
 	pk1, err = crypto.UnmarshalPrivateKey(pk1Bytes)
 	if err != nil {
 		panic(fmt.Errorf("error unmarshaling private key: %s", err.Error()))
-		return
 	}
 }
 
@@ -38,7 +37,7 @@ func TestProfileRequests(t *testing.T) {
 	reg := registry.Registry{
 		Profiles: registry.NewMemProfiles(),
 		Datasets: memDs,
-		Search:   &registry.MockSearch{memDs},
+		Search:   &registry.MockSearch{Datasets: memDs},
 	}
 	ts := httptest.NewServer(handlers.NewRoutes(reg))
 	c := NewClient(&Config{

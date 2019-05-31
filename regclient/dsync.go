@@ -11,6 +11,7 @@ import (
 	coreiface "github.com/ipfs/interface-go-ipfs-core"
 )
 
+// DsyncSend sents an entire Manifest
 func (c *Client) DsyncSend(ctx context.Context, ng ipld.NodeGetter, mfst *dag.Manifest) error {
 	remote := &dsync.HTTPRemote{
 		URL: fmt.Sprintf("%s/dsync", c.cfg.Location),

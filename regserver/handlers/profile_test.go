@@ -36,7 +36,6 @@ func init() {
 	privKey1, err = crypto.UnmarshalPrivateKey(testPk1)
 	if err != nil {
 		panic(fmt.Errorf("error unmarshaling private key: %s", err.Error()))
-		return
 	}
 
 	data, err = base64.StdEncoding.DecodeString(string(testPk2))
@@ -48,7 +47,6 @@ func init() {
 	privKey2, err = crypto.UnmarshalPrivateKey(testPk2)
 	if err != nil {
 		panic(fmt.Errorf("error unmarshaling private key: %s", err.Error()))
-		return
 	}
 }
 
