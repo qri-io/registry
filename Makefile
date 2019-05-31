@@ -4,7 +4,7 @@ define GOPACKAGES
 github.com/libp2p/go-libp2p-crypto \
 github.com/jbenet/go-multihash \
 github.com/sirupsen/logrus \
-github.com/datatogether/api/apiutil \
+github.com/qri-io/apiutil \
 github.com/qri-io/dataset
 endef
 

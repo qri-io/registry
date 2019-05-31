@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 
-	util "github.com/datatogether/api/apiutil"
-	"github.com/libp2p/go-libp2p-crypto"
+	crypto "github.com/libp2p/go-libp2p-crypto"
+	util "github.com/qri-io/apiutil"
 	"github.com/qri-io/dataset"
 	"github.com/qri-io/registry"
 	"github.com/qri-io/registry/ns"
