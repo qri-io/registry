@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/datatogether/api/apiutil"
+	"github.com/qri-io/apiutil"
 	"github.com/qri-io/registry"
 )
 

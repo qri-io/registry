@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datatogether/api/apiutil"
+	"github.com/qri-io/apiutil"
 	"github.com/qri-io/registry"
 )
 
