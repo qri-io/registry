@@ -30,7 +30,7 @@ func SetLogLevel(level string) error {
 type RouteOptions struct {
 	Protector MethodProtector
 	Pinset    pinset.Pinset
-	Dsync     *dsync.Receivers
+	Dsync     *dsync.Dsync
 }
 
 // AddPinset creates a configuration func for passing to NewRoutes
@@ -40,8 +40,8 @@ func AddPinset(ps pinset.Pinset) func(o *RouteOptions) {
 	}
 }
 
-// AddDsyncReceivers creates a configuration func for passing to NewRoutes
-func AddDsyncReceivers(rec *dsync.Receivers) func(o *RouteOptions) {
+// AddDsync creates a configuration func for passing to NewRoutes
+func AddDsync(rec *dsync.Dsync) func(o *RouteOptions) {
 	return func(o *RouteOptions) {
 		o.Dsync = rec
 	}
@@ -90,7 +90,7 @@ func NewRoutes(reg registry.Registry, opts ...func(o *RouteOptions)) *http.Serve
 		m.HandleFunc("/pins/status", logReq(NewPinStatusHandler(o.Pinset)))
 	}
 	if o.Dsync != nil {
-		m.HandleFunc("/dsync", logReq(o.Dsync.HTTPHandler()))
+		m.HandleFunc("/dsync", logReq(dsync.HTTPRemoteHandler(o.Dsync)))
 	}
 
 	return m
