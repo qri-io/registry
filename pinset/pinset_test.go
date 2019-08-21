@@ -65,10 +65,10 @@ func TestInsertSorted(t *testing.T) {
 		expect []string
 	}{
 		{[]string{}, "e", []string{"e"}},
-		{[]string{"b"}, "e", []string{"b","e"}},
-		{[]string{"m"}, "e", []string{"e","m"}},
-		{[]string{"b","d","m"}, "e", []string{"b","d","e","m"}},
-		{[]string{"m","p","x"}, "e", []string{"e","m","p","x"}},
+		{[]string{"b"}, "e", []string{"b", "e"}},
+		{[]string{"m"}, "e", []string{"e", "m"}},
+		{[]string{"b", "d", "m"}, "e", []string{"b", "d", "e", "m"}},
+		{[]string{"m", "p", "x"}, "e", []string{"e", "m", "p", "x"}},
 	}
 
 	for i, c := range cases {

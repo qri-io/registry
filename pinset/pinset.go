@@ -38,7 +38,7 @@ type MemPinset struct {
 func insertSorted(list []string, elem string) []string {
 	index := sort.Search(len(list), func(i int) bool { return list[i] > elem })
 	list = append(list, "")
-	copy(list[index + 1:], list[index:])
+	copy(list[index+1:], list[index:])
 	list[index] = elem
 	return list
 }
