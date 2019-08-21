@@ -12,29 +12,29 @@ import (
 )
 
 // DsyncSend sents an entire Manifest
-func (c *Client) DsyncSend(ctx context.Context, ng ipld.NodeGetter, mfst *dag.Manifest) error {
-	remote := &dsync.HTTPRemote{
+func (c *Client) DsyncSend(ctx context.Context, lng ipld.NodeGetter, mfst *dag.Manifest) error {
+	remote := &dsync.HTTPClient{
 		URL: fmt.Sprintf("%s/dsync", c.cfg.Location),
 	}
 
-	snd, err := dsync.NewSend(ctx, ng, mfst, remote)
+	snd, err := dsync.NewPush(lng, &dag.Info{Manifest: mfst}, remote, true)
 	if err != nil {
 		return err
 	}
 
-	return snd.Do()
+	return snd.Do(ctx)
 }
 
 // DsyncFetch fetches an entire DAG designated by root path
 func (c *Client) DsyncFetch(ctx context.Context, path string, ng ipld.NodeGetter, bapi coreiface.BlockAPI) error {
-	remote := &dsync.HTTPRemote{
+	remote := &dsync.HTTPClient{
 		URL: fmt.Sprintf("%s/dsync", c.cfg.Location),
 	}
 
-	fetch, err := dsync.NewFetch(ctx, path, ng, bapi, remote)
+	fetch, err := dsync.NewPull(path, ng, bapi, remote)
 	if err != nil {
 		return err
 	}
 
-	return fetch.Do()
+	return fetch.Do(ctx)
 }
