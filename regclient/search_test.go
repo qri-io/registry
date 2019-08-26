@@ -10,11 +10,9 @@ import (
 
 func TestSearchRequests(t *testing.T) {
 
-	memDs := registry.NewMemDatasets()
 	reg := registry.Registry{
 		Profiles: registry.NewMemProfiles(),
-		Datasets: memDs,
-		Search:   registry.MockSearch{Datasets: memDs},
+		Search:   registry.MockSearch{},
 	}
 
 	srv := httptest.NewServer(handlers.NewRoutes(reg))

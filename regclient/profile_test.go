@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/libp2p/go-libp2p-crypto"
+	crypto "github.com/libp2p/go-libp2p-crypto"
 	"github.com/qri-io/registry"
 	"github.com/qri-io/registry/regserver/handlers"
 )
@@ -33,11 +33,9 @@ func init() {
 
 func TestProfileRequests(t *testing.T) {
 	handle := "b5"
-	memDs := registry.NewMemDatasets()
 	reg := registry.Registry{
 		Profiles: registry.NewMemProfiles(),
-		Datasets: memDs,
-		Search:   &registry.MockSearch{Datasets: memDs},
+		Search:   &registry.MockSearch{},
 	}
 	ts := httptest.NewServer(handlers.NewRoutes(reg))
 	c := NewClient(&Config{

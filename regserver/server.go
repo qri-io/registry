@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/qri-io/registry"
-	"github.com/qri-io/registry/pinset"
 	"github.com/qri-io/registry/regserver/handlers"
 	"github.com/sirupsen/logrus"
 )
@@ -34,13 +33,11 @@ func main() {
 	ps := registry.NewMemProfiles()
 	reg := registry.Registry{
 		Profiles: ps,
-		Datasets: registry.NewMemDatasets(),
 	}
-	pset := &pinset.MemPinset{Profiles: ps}
 
 	s := http.Server{
 		Addr:    ":" + port,
-		Handler: handlers.NewRoutes(reg, handlers.AddPinset(pset), handlers.AddProtector(pro)),
+		Handler: handlers.NewRoutes(reg, handlers.AddProtector(pro)),
 	}
 
 	log.Infof("serving on: %s", s.Addr)

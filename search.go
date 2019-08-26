@@ -3,6 +3,8 @@ package registry
 import (
 	"fmt"
 	"strings"
+
+	"github.com/qri-io/dataset"
 )
 
 // Searchable is an opt-in interface for registries that wish to
@@ -14,9 +16,9 @@ type Searchable interface {
 // Indexer is an interface for adding registry values to a search index
 type Indexer interface {
 	// IndexDatasets adds one or more datasets to a search index
-	IndexDatasets([]*Dataset) error
+	IndexDatasets([]*dataset.Dataset) error
 	// UnindexDatasets removes one or more datasets from a search index
-	UnindexDatasets([]*Dataset) error
+	UnindexDatasets([]*dataset.Dataset) error
 }
 
 // SearchParams encapsulates parameters provided to Searchable.Search
@@ -50,12 +52,12 @@ func (ns NilSearch) Search(p SearchParams) ([]Result, error) {
 // dataset's meta.title property. It's mainly intended for testing
 // purposes.
 type MockSearch struct {
-	Datasets Datasets
+	Datasets []*dataset.Dataset
 }
 
 // Search is a trivial search implementation used for testing
 func (ms MockSearch) Search(p SearchParams) (results []Result, err error) {
-	ms.Datasets.Range(func(key string, ds *Dataset) bool {
+	for _, ds := range ms.Datasets {
 		dsname := ""
 		if ds.Meta != nil {
 			dsname = strings.ToLower(ds.Meta.Title)
@@ -64,7 +66,7 @@ func (ms MockSearch) Search(p SearchParams) (results []Result, err error) {
 			result := &Result{Value: ds}
 			results = append(results, *result)
 		}
-		return false
-	})
+	}
+
 	return results, nil
 }
