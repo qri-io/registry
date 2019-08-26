@@ -20,7 +20,7 @@ require (
 	github.com/mr-tron/base58 v1.1.2
 	github.com/multiformats/go-multihash v0.0.5
 	github.com/qri-io/apiutil v0.1.0
-	github.com/qri-io/dag v0.1.1-0.20190821171124-e312fd37a7cb
+	github.com/qri-io/dag v0.1.1-0.20190826121154-bee27f6db672
 	github.com/qri-io/dataset v0.1.3-0.20190617151150-bd20b1913ba5
 	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect

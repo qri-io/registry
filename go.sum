@@ -589,6 +589,8 @@ github.com/qri-io/dag v0.1.1-0.20190605213518-cb095ea6b6d9 h1:vuUxj9kwdQQbC3RXpN
 github.com/qri-io/dag v0.1.1-0.20190605213518-cb095ea6b6d9/go.mod h1:9FgCFkc7qQY+8/nYwRzMFWfbvmAz/2tMJ4dn0zOUJV4=
 github.com/qri-io/dag v0.1.1-0.20190821171124-e312fd37a7cb h1:3bG6FoZMFA3P5fKm+NJ0GobP6ouZtY76mRIkHxib3mY=
 github.com/qri-io/dag v0.1.1-0.20190821171124-e312fd37a7cb/go.mod h1:fKeo73hNNv3OtQYGt4yLd1d6n2+ImaXAm9CeTxpmjIc=
+github.com/qri-io/dag v0.1.1-0.20190826121154-bee27f6db672 h1:lffPwiWc+YttNLrpDsNAV9tDXfCqO7zXhXbbgaGBRmE=
+github.com/qri-io/dag v0.1.1-0.20190826121154-bee27f6db672/go.mod h1:t/iMfcZ/eyEhF/doiga4ff2wn8fy10FGBsiztFdFjYU=
 github.com/qri-io/dataset v0.0.0-20190516191825-5a7de4a0f2d4/go.mod h1:JF7Gsqd+3LU7lmOriBRtNVJ0HkciNX6aVjoMAM3bOdA=
 github.com/qri-io/dataset v0.1.3-0.20190617151150-bd20b1913ba5 h1:JtZAKkeHpSkJBnGMDPG0nbIm6cSC5+MgtQYSkcfj+gE=
 github.com/qri-io/dataset v0.1.3-0.20190617151150-bd20b1913ba5/go.mod h1:iLbXBiN11Mf1gr8R+40arhqtbZOEMbhjDtGXPi2JLRQ=

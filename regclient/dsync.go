@@ -31,7 +31,7 @@ func (c *Client) DsyncFetch(ctx context.Context, path string, ng ipld.NodeGetter
 		URL: fmt.Sprintf("%s/dsync", c.cfg.Location),
 	}
 
-	fetch, err := dsync.NewPull(path, ng, bapi, remote)
+	fetch, err := dsync.NewPull(path, ng, bapi, remote, nil)
 	if err != nil {
 		return err
 	}
